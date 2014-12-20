@@ -12,7 +12,7 @@ import numpy as np
 from scipy.stats import t
 
 
-class apparatus_uncer:
+class APPARATUS_UNCER:
     """
         This class stores the information of measurement uncertainty
         of different apparatus
@@ -54,13 +54,61 @@ class apparatus_uncer:
             uncertainty of the measurement
         """
 
-        num = len(reading)
-        if self.get_abs_uncer() > 0.0:
-            return sqrt(self.get_abs_uncer()**2/num)
+        try:
+            num = len(reading)
+            if self.get_abs_uncer() > 0.0:
+                return sqrt(self.get_abs_uncer()**2/num)
+            else:
+                return np.sqrt(np.sum(
+                    (self.get_rel_uncer()*np.array(reading))**2
+                )/num)
+        except TypeError:  #not list nor numpy array
+            if self.get_abs_uncer() > 0.0:
+                return self.get_abs_uncer()
+            else:
+                return self.get_rel_uncer()*np.array(reading)
+            
+
+    def measure_av_result(self, reading, conf=0.95, full_output=0):
+        """
+            This function calculates the mean reading and its uncertainty
+            based on its reading in a time-series and the apparatus used
+            to collect the readings
+
+            Parameters:
+            ===========
+            reading: array
+                readings of the measurement
+            conf:   float
+                Confidence level. Default is 95%
+            full_output: int
+                if the number is bigger than one, return zero and first
+                order uncertainty for reference
+
+            Returns:
+            ===========
+            mean_val: float
+                mean of the time-series data
+            mean_uncer: float
+                uncertainty of the measurement
+            zero_order: float, optional
+                magnitude of zero order uncertainty
+            first_order: float, optional
+                magnitude of first order uncertainty
+        """
+
+        #calculate the mean value
+        mean_val = np.mean(reading)
+
+        #calculate the uncertainty of the mean value
+        zero_uncer = self.zero_order_uncer(reading)
+        first_uncer = first_order_uncer(reading, conf)
+        mean_uncer = sqrt(zero_uncer**2+first_uncer**2)
+
+        if full_output <= 0:
+            return mean_val, mean_uncer
         else:
-            return np.sqrt(np.sum(
-                (self.get_rel_uncer*np.array(reading))**2
-            )/num)
+            return mean_val, mean_uncer, zero_uncer, first_uncer
 
 
 def first_order_uncer(reading, conf=0.95):
@@ -94,53 +142,9 @@ def first_order_uncer(reading, conf=0.95):
     return k*mean_sigma
 
 
-def measure_av_result(reading, apparatus_uncer, conf=0.95, full_output=0):
-    """
-        This function calculates the mean reading and its uncertainty
-        based on its reading in a time-series and the apparatus used
-        to collect the readings
-
-        Parameters:
-        ===========
-        reading: array
-            readings of the measurement
-        apparatus_uncer: class apparatus_uncer
-            uncertainty information about the apparatus
-        conf:   float
-            Confidence level. Default is 95%
-        full_output: int
-            if the number is bigger than one, return zero and first
-            order uncertainty for reference
-
-        Returns:
-        ===========
-        mean_val: float
-            mean of the time-series data
-        mean_uncer: float
-            uncertainty of the measurement
-        zero_order: float, optional
-            magnitude of zero order uncertainty
-        first_order: float, optional
-            magnitude of first order uncertainty
-    """
-
-    #calculate the mean value
-    mean_val = np.mean(reading)
-
-    #calculate the uncertainty of the mean value
-    zero_uncer = apparatus_uncer.zero_order_uncer(reading)
-    first_uncer = first_order_uncer(reading, conf)
-    mean_uncer = sqrt(zero_uncer**2+first_uncer**2)
-
-    if full_output <= 0:
-        return mean_val, mean_uncer
-    else:
-        return mean_val, mean_uncer, zero_uncer, first_uncer
-
-
 if __name__ == "__main__":
     """
-        Testing function
+        Testing scripts
     """
 
     #example time-series data
@@ -149,7 +153,7 @@ if __name__ == "__main__":
     print(data)
 
     #0.5K absolute uncertainty and 0% relative uncertainty
-    thermocouple = apparatus_uncer(0.5, 0.0)
+    thermocouple = APPARATUS_UNCER(0.5, 0.0)
 
     print("Mean, Uncertainty, Zero-order, First-order:")
-    print(measure_av_result(data, thermocouple, full_output=1))
+    print(thermocouple.measure_av_result(data, full_output=1))
