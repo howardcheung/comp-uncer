@@ -1,23 +1,25 @@
 #/usr/bin/python
 
 """
-	This file contains functions that are used to predict measurement
-	data and its uncertainty based on expected readings and its
-	experimental methods
+    This file contains functions that are used to predict measurement
+    data and its uncertainty based on expected readings and its
+    experimental methods
 """
 
 from math import floor
 
+from CoolProp.CoolProp import PropsSI as Props
 import numpy as np
 from random import normalvariate
 from scipy.stats import norm
 
 import exp_uncer
 
+
 class EXP_METHOD:
     """
         This class contains information about how a steady state
-        data point was obtained in an experiment    
+        data point was obtained in an experiment
 
         freq: float
             frequency of data acquisition in Hz
@@ -44,46 +46,135 @@ class EXP_METHOD:
 
     def get_num(self):
         """
-            Return the number of time-series data points
+            Return the number of time-series data points as an integer
         """
         #get the number of data points in the time-series data
         return int(floor(self._period*self._freq))
 
+    def exp_data_generator(self, exp_val, apparatus_uncer, conf=0.95):
+        """
+            Predict experimental data according to the experimental
+            method and apparatus uncertainty information with the
+            assumption that the apparatus uncertainty is described
+            by a 95% confidence interval under a normal distribution
 
-def exp_data_generator(exp_val, exp_method, apparatus_uncer, conf=0.95):
+            Parameters:
+            ===========
+            exp_val: float
+                expected reading of the sensor
+            apparatus_uncer: class exp_uncer.APPARATUS_UNCER
+                uncertainty information of the measurement apparatus
+            conf: float, optional
+                the confidence level of the apparatus uncertainty. Default 95%
+
+            Returns:
+            ===========
+            data: numpy array
+                readings in time-series
+
+        """
+
+        num = self.get_num()  # number of data points
+        zero_order = apparatus_uncer.zero_order_uncer(exp_val)
+
+        norm_std = zero_order/norm.interval(0.95)[1]
+        data = []
+        for ii in xrange(num):
+            data.append(normalvariate(exp_val, norm_std))
+
+        return np.array(data)
+
+
+def sat_temp_uncer_cal(pres, uncer_pres, refri, full_output=0):
     """
-        Predict experimental data according to the experimental
-        method and apparatus uncertainty information with the
-        assumption that the apparatus uncertainty is described
-        by a 95% confidence interval under a normal distribution
+        Calculate the uncertainty of the saturation temperature
+        as a result of the refrigerant property calculation
+        from the mean pressure value averaged from a time-series data
         
         Parameters:
-        ===========
-        exp_val: float
-            expected reading of the sensor
-        exp_method: class EXP_METHOD
-            experimental method information
-        apparatus_uncer: class exp_uncer.APPARATUS_UNCER
-            uncertainty information of the measurement apparatus
-        conf: float, optional
-            the confidence level of the apparatus uncertainty. Default 95%
+        ============
+        pres:   float, list or numpy array
+            pressure readings averaged from time-series data in kPa
+        uncer_pres: float, list or numpy array
+            uncertainty due to sensor and time-fluctuation
+            of pressure readings averaged from time-series data in kPa
+        refri:  string
+            name of refrigerant
+        full_output: int, optional
+            return an array of showing uncertainty propagated from
+            zero- and first-order uncertainty of pressure readings
+            and the uncertainty due to the refrigerant property equation
             
         Returns:
-        ===========
-        data: numpy array
-            readings in time-series
-        
+        ============
+        Tsat:   float or numpy array
+            dewpoint temperature in K
+        uncer_Tsat:   float or numpy array
+            uncertainty of Tsat in K
+        uncer_read:   float or numpy array, optional
+            uncertainty from time-fluctuation and sensor of pressure readings in K
+        uncer_theo:   float or numpy array, optional
+            uncertainty from refrigerant property calculation in K
     """
     
-    num = exp_method.get_num()  #number of data points
-    zero_order = apparatus_uncer.zero_order_uncer(exp_val)
+    #make all pressure and uncer_pressure readings to be in numpy arrays
     
-    norm_std = zero_order/norm.interval(0.95)[1]
-    data = []
-    for ii in xrange(num):
-        data.append(normalvariate(exp_val, norm_std))
-        
-    return np.array(data)
+    def _check_size(entry):
+        """
+            This function returns a list or numpy array of an entry even when
+            it is an integer or float
+        """    
+        if type(entry) is list or type(entry) is np.ndarray:
+            ary = entry
+        else:
+            ary = []
+            ary.append(entry)
+        return ary
+
+    pres_ary = _check_size(pres)
+    uncer_ary = _check_size(uncer_pres)
+    thres = 1.e-8
+    
+    #calculate the uncertainty propagated to the saturation temperature result
+    #from the sensors and time fluctuation
+    dTdP_ary = [
+        (Props(
+            'T', 'P', p*(1+thres)*1000.0, 'Q', 1, refri
+        )-Props(
+            'T', 'P', p*(1-thres)*1000.0, 'Q', 1, refri
+        ))/(p*thres*2.) for p in pres_ary
+    ]
+    uncer_read = [dTdP*uncer for dTdP, uncer in zip(dTdP_ary, uncer_ary)]
+    
+    # NEED MORE DIFFERENT REFRIGERANTS LATER
+    # use the R410A default that the dewpoint pressure
+    # uncertainty is 0.5% in Lemmon(2003) to calculate
+    # the uncertainty due to the equation
+
+    Tsat_ary = [Props('T', 'P', p*1000.0, 'Q', 1, refri) for p in pres_ary]
+    dPdT_ary = [
+        (Props(
+            'P', 'T', tsat*(1+thres), 'Q', 1, refri
+        )-Props(
+            'P', 'T', tsat*(1-thres), 'Q', 1, refri
+        ))/(tsat*thres*2.)/1000.0 for tsat in Tsat_ary
+    ]
+    uncer_theo = [1./dPdT*p*0.005 for dPdT, p in zip(dPdT_ary, pres_ary)]
+    
+    #calculate total uncertainy of the saturation temperature
+    uncer_total = np.sqrt(
+        (np.array(uncer_theo))**2+(np.array(uncer_read))**2
+    )
+    if len(uncer_total) == 1:
+        if full_output:
+            return Tsat_ary[0], uncer_total[0], uncer_read[0], uncer_theo[0]
+        else:
+            return Tsat_ary[0], uncer_total[0]
+    else:
+        if full_output:
+            return Tsat_ary, uncer_total, uncer_read, uncer_theo
+        else:
+            return Tsat_ary, uncer_total
 
 
 if __name__ == "__main__":
@@ -91,39 +182,48 @@ if __name__ == "__main__":
     """
         Testing scripts
     """
-    
+
     #import libraries
     from math import sqrt
-    
-    from CoolProp.CoolProp import PropsSI
-    
+
     import exp_uncer
-    
+
     # define experimental method and apparatus
     test = EXP_METHOD(0.1, 600)
     power_meter = exp_uncer.APPARATUS_UNCER(0.0, 0.005)
-    p_trans = exp_uncer.APPARATUS_UNCER(0.0, 0.05)
-    
+    p_trans = exp_uncer.APPARATUS_UNCER(0.0, 0.008)
+
     # expected readings
-    power = 500.0
+    power = 2000.0
     p_suc = 500.0
     p_dischg = 1000.0
     refri = 'R410A'
-    
+
     # generate random time-series data from expected readings with exp_method
     # and apparatus information
-    power_data = exp_data_generator(power, test, power_meter)
-    p_suc_data = exp_data_generator(p_suc, test, p_trans)
-    p_dischg_data = exp_data_generator(p_dischg, test, p_trans)
-    
+    power_data = test.exp_data_generator(power, power_meter)
+    p_suc_data = test.exp_data_generator(p_suc, p_trans)
+    p_dischg_data = test.exp_data_generator(p_dischg, p_trans)
+
     # return the mean values of the time-series data
     print('Power meter reading:')
+    print('Mean of time series [W], Uncertainty [W], Uncertainty from sensor [W], Uncertainty from time fluctuation [W]:')
     print(power_meter.measure_av_result(power_data, full_output=1))
-    
+
+    p_suc_info = p_trans.measure_av_result(p_suc_data, full_output=1)
     print('Compressor suction pressure reading:')
-    print(p_trans.measure_av_result(p_suc_data, full_output=1))
-    
+    print('Mean of time series [kPa], Uncertainty [kPa], Uncertainty from sensor [kPa], Uncertainty from time fluctuation [kPa]:')
+    print(p_suc_info)
+
+    p_dischg_info = p_trans.measure_av_result(p_dischg_data, full_output=1)
     print('Compressor discharge pressure reading:')
-    print(p_trans.measure_av_result(p_dischg_data, full_output=1))
-    
-    
+    print('Mean of time series [kPa], Uncertainty [kPa], Uncertainty from sensor [kPa], Uncertainty from time fluctuation [kPa]:')
+    print(p_dischg_info)
+
+    print('Compressor suction saturation temperature reading:')
+    print('Dewpoint temperature [K], Uncertainty [K], Uncertainty from pressure reading [K], Uncertainty from equation [K]:')
+    print(sat_temp_uncer_cal(p_suc_info[0], p_suc_info[1], refri, full_output=1))
+
+    print('Compressor discharge saturation temperature reading:')
+    print('Dewpoint temperature [K], Uncertainty [K], Uncertainty from pressure reading [K], Uncertainty from equation [K]:')
+    print(sat_temp_uncer_cal(p_dischg_info[0], p_dischg_info[1], refri, full_output=1))
