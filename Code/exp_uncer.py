@@ -15,7 +15,8 @@ from scipy.stats import t
 class APPARATUS_UNCER:
     """
         This class stores the information of measurement uncertainty
-        of different apparatus
+        of different apparatus. You can only set either one of them to
+        be positive.
 
         _abs_uncer: float
                 absolute uncertainty
@@ -24,17 +25,25 @@ class APPARATUS_UNCER:
     """
 
     def __init__(self, abs_uncer=0.0, rel_uncer=0.0):
-        self._abs_uncer = abs_uncer
-        self._rel_uncer = rel_uncer
+        if abs_uncer >= 0.0:
+            self._abs_uncer = abs_uncer
+        else:
+            self._abs_uncer = 0.0
+        if self._abs_uncer <= 0.0 and rel_uncer > 0.0:
+            self._rel_uncer = rel_uncer
+        else:
+            self._rel_uncer = 0.0
 
     def set_abs_uncer(self, abs_uncer):
         self._abs_uncer = abs_uncer
+        self._rel_uncer = 0.0
 
     def get_abs_uncer(self):
         return self._abs_uncer
 
     def set_rel_uncer(self, rel_uncer):
         self._rel_uncer = rel_uncer
+        self._abs_uncer = 0.0
 
     def get_rel_uncer(self):
         return self._rel_uncer
@@ -54,7 +63,7 @@ class APPARATUS_UNCER:
             uncertainty of the measurement
         """
 
-        try:
+        if type(reading) is list or type(reading) is np.ndarray:
             num = len(reading)
             if self.get_abs_uncer() > 0.0:
                 return sqrt(self.get_abs_uncer()**2/num)
@@ -62,7 +71,7 @@ class APPARATUS_UNCER:
                 return np.sqrt(np.sum(
                     (self.get_rel_uncer()*np.array(reading))**2
                 )/num)
-        except TypeError:  #not list nor numpy array
+        else:
             if self.get_abs_uncer() > 0.0:
                 return self.get_abs_uncer()
             else:
