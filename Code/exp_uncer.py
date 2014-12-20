@@ -1,4 +1,4 @@
-#/usr/bin/python
+#!/usr/bin/python
 
 """
     This file contains functions and classes that help the calculation of
