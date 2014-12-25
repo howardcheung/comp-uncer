@@ -6,7 +6,7 @@
     experimental methods
 """
 
-from math import floor
+from math import floor, sqrt
 
 from CoolProp.CoolProp import PropsSI as Props
 import numpy as np
@@ -52,7 +52,10 @@ class EXP_METHOD:
         #get the number of data points in the time-series data
         return int(floor(self._period*self._freq))
 
-    def exp_data_generator(self, exp_val, apparatus_uncer, conf=0.95):
+    def exp_data_generator(
+        self, exp_val, apparatus_uncer, first_abs=0.0,
+        first_rel=0.0, conf=0.95
+    ):
         """
             Predict experimental data according to the experimental
             method and apparatus uncertainty information with the
@@ -65,6 +68,13 @@ class EXP_METHOD:
                 expected reading of the sensor
             apparatus_uncer: class exp_uncer.APPARATUS_UNCER
                 uncertainty information of the measurement apparatus
+            first_abs: float
+                extra absolute uncertainty to the measurement
+                due to noise, in the same engineering unit as the
+                measurement
+            first_rel: float
+                extra relative uncertainty to the measurement
+                due to noise
             conf: float, optional
                 the confidence level of the apparatus uncertainty. Default 95%
 
@@ -77,8 +87,13 @@ class EXP_METHOD:
 
         num = self.get_num()  # number of data points
         zero_order = apparatus_uncer.zero_order_uncer(exp_val)
+        first_order = sqrt(
+            first_abs**2+(first_rel*exp_val)**2
+        )
 
-        norm_std = zero_order/norm.interval(0.95)[1]
+        norm_std = sqrt(
+            zero_order**2+first_order**2
+        )/norm.interval(0.95)[1]
         data = []
         for ii in xrange(num):
             data.append(normalvariate(exp_val, norm_std))
@@ -195,8 +210,8 @@ if __name__ == "__main__":
     # generate random time-series data from expected readings with exp_method
     # and apparatus information
     power_data = test.exp_data_generator(power, power_meter)
-    p_suc_data = test.exp_data_generator(p_suc, p_trans)
-    p_dischg_data = test.exp_data_generator(p_dischg, p_trans)
+    p_suc_data = test.exp_data_generator(p_suc, p_trans, first_abs=0.9)
+    p_dischg_data = test.exp_data_generator(p_dischg, p_trans, first_abs=0.4)
 
     # return the mean values of the time-series data
     print('Power meter reading:')
