@@ -157,6 +157,12 @@ def sat_temp_uncer_cal(pres, uncer_pres, refri, full_output=0):
     # uncertainty is 0.5% in Lemmon(2003) to calculate
     # the uncertainty due to the equation
 
+    if refri is 'R22':
+        # for R22, use the relative humidity from Kamei et al. (1995)
+        p_uncer_rel = 0.002
+    else:  # use R410A ones as default
+        p_uncer_rel = 0.005
+
     Tsat_ary = [Props('T', 'P', p*1000.0, 'Q', 1, refri) for p in pres_ary]
 
     def _PropsPT(T):
@@ -167,7 +173,7 @@ def sat_temp_uncer_cal(pres, uncer_pres, refri, full_output=0):
             tsat, _PropsPT, tsat*thres, thres
         ) for tsat in Tsat_ary
     ]
-    uncer_theo = [1./dPdT*p*0.005 for dPdT, p in zip(dPdT_ary, pres_ary)]
+    uncer_theo = [1./dPdT*p*p_uncer_rel for dPdT, p in zip(dPdT_ary, pres_ary)]
 
     #calculate total uncertainy of the saturation temperature
     uncer_total = np.sqrt(
