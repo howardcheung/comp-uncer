@@ -98,3 +98,39 @@ def finite_difference(x, func, thres_initial, thres_check):
         iter = iter+1
 
     return deriv
+
+
+def F2K(T_F):
+    """
+        Convert temperature in Fahrenheit to Kelvin, code from ACHP
+
+        Parameters:
+        ===========
+        T_F: float
+            temperature in degrees Fahrenheit
+
+        Returns:
+        ===========
+        T_K: float
+            temperature in Kelvin
+
+    """
+    return 5./9.*(T_F+459.67)
+
+
+def K2F(T_K):
+    """
+        Convert temperature in Kelvin to Fahrenheit , code from ACHP
+
+        Returns:
+        ===========
+        T_K: float
+            temperature in Kelvin
+
+        Parameters:
+        ===========
+        T_F: float
+            temperature in degrees Fahrenheit
+
+    """
+    return T_K*9./5.-459.67
