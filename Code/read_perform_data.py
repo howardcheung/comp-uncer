@@ -19,7 +19,7 @@ def parse_one_sh_data(filename):
         will be counted and only the data with the superheat
         corresponding to the largest number of data points
         will be returned
-        
+
         Parameters:
         ===========
         filename: string
@@ -38,11 +38,22 @@ def parse_one_sh_data(filename):
     df = pd.read_csv(filename)
 
     # count the number of data points per superheat
-    sh_counts = df.values_counts()  # dictionary
+    sh_counts = df.SuperheatInF.value_counts()  # dictionary
     num_val = 0
-    sh_val = sh_counts.keys[0]
-    for sh, num in zip(sh_counts.keys(), sh_counts.values()):
-        if num > num_val:
+    sh_val = sh_counts.keys()[0]
+    for sh, num_sh in zip(sh_counts.keys(), sh_counts.values):
+        if num_sh > num_val:
             sh_val = sh
 
-    return df[df.SuperheatInF==sh_val]
+    return df[df.SuperheatInF == sh_val]
+
+
+if __name__ == '__main__':
+    """
+        for testing
+    """
+
+    filename = "..//Data//mfg_data_sheets//compressor//H23A463DBL_data.csv"
+    print("Reading "+filename)
+    df = parse_one_sh_data(filename)
+    print(df)
