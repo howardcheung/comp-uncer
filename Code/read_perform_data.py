@@ -7,7 +7,11 @@
     to the user-defined test matrix
 """
 
+import copy
+
 import pandas as pd
+
+from misc_func import OperatingPoint
 
 
 def parse_one_sh_data(filename):
@@ -45,15 +49,95 @@ def parse_one_sh_data(filename):
         if num_sh > num_val:
             sh_val = sh
 
+    # form a column of OperatingPoint
+    df['OperatingPoint'] = OperatingPoint()  # define type
+    for ind in df.index:
+        df.OperatingPoint[ind] = OperatingPoint(
+            df.CondTempInF[ind], df.EvapTempInF[ind]
+        )  # relink to a new pointer
+
     return df[df.SuperheatInF == sh_val]
+
+
+def data_filter(
+        df, CondTempRange=[float('-inf'), float('inf')],
+        EvapTempRange=[float('-inf'), float('inf')],
+        RemovalPoint=[OperatingPoint()]
+        ):
+    """
+        This file reads the raw file and return a pandas
+        dataframe that only contains the data within the
+        defined condensing temperature and evaporating
+        temperature defined by the user. If the user defines
+        extra operating points to be removed, the pandas
+        dataframe will not contain the defined data point.
+
+        Parameters:
+        ============
+        df: pandas dataframe
+            performance data obtained from the function parse_one_sh_data
+
+        CondTempRange: list
+            range of condensing temperature that should be included
+            in the new dataframe. So the resultant dataframe has
+            condensing temperature >= CondTempRange[0] and condensing
+            temperature <= CondTempRand[1].
+
+        EvapTempRange: list
+            range of evaporating temperature that should be included
+            in the new dataframe So the resultant dataframe has
+            evaporating temperature >= EvapTempRange[0] and evaporating
+            temperature <= EvapTempRand[1].
+
+        RemovalPoint: list
+            list of OperatingPoint() that should be excluded in the new
+            dataframe
+
+        Returns:
+        ============
+        df_new: pandas dataframe
+            performance data after filtering
+    """
+
+    # copy new dataframe
+    df_new = copy.deepcopy(df)
+
+    # condition list
+    cond = []
+    cond.append(df.CondTempInF >= CondTempRange[0])
+    cond.append(df.CondTempInF <= CondTempRange[1])
+    cond.append(df.EvapTempInF >= EvapTempRange[0])
+    cond.append(df.EvapTempInF <= EvapTempRange[1])
+    for point in RemovalPoint:
+        cond.append(df.OperatingPoint != point)
+
+    # Apply AND to all conditions
+    final_condition = cond[0]
+    for ii in xrange(1, len(cond)):
+        final_condition = final_condition*cond[ii]
+
+    # Return the data that satisfy all conditions
+    return df_new[final_condition]
 
 
 if __name__ == '__main__':
     """
-        for testing
+        for Testing
     """
 
+    # read data
     filename = "..//Data//mfg_data_sheets//compressor//H23A463DBL_data.csv"
     print("Reading "+filename)
     df = parse_one_sh_data(filename)
     print(df)
+
+    # filter data such that the new dataframe contains data with condensing
+    # temperature within 90F and 130F, with evaporating temperature within -5F
+    # and 10F and without the operating points (Condensing temp.,
+    # Evaporating temp.) at (90F, -5F) and (100F, 0F)
+    df_new = data_filter(
+        df, CondTempRange=[90, 130],
+        EvapTempRange=[-5, 10],
+        RemovalPoint=[OperatingPoint(90, -5), OperatingPoint(100, 0)]
+    )
+    print(df_new)
