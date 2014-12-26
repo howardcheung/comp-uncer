@@ -1,4 +1,4 @@
-CondTemp[F],EvapTemp[F],Power[W],MassFlowRate[lb/hr],Superheat[F]
+CondTempInF,EvapTempInF,PowerInW,MassFlowRateInlbhr,SuperheatInF
 80,-20,1679,131.1,20
 80,-15,1763,155,20
 80,-10,1841,183.4,20
