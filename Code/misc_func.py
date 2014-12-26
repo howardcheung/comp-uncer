@@ -8,6 +8,54 @@
 import numpy as np
 
 
+class OperatingPoint:
+    """
+        This class is a class to store a compressor operating point
+        defined by the condensing temperature and evaporating
+        temperature
+    """
+
+    def __init__(self, CondTempInF=float('inf'), EvapTempInF=float('-inf')):
+        self._condtempinF = CondTempInF
+        self._evaptempinF = EvapTempInF
+
+    def get_CondTempInF(self):
+        return self._condtempinF
+
+    def set_CondTempInF(self, CondTempInF):
+        self._condtempinF = CondTempInF
+
+    def get_EvapTempInF(self):
+        return self._evaptempinF
+
+    def set_EvapTempInF(self, EvapTempInF):
+        self._evaptempinF = EvapTempInF
+
+    def __eq__(self, SecondOP):
+        if self._evaptempinF == SecondOP._evaptempinF and \
+                self._condtempinF == SecondOP._condtempinF:
+            return True
+        else:
+            return False
+
+    def is_(self, SecondOP):
+        return self.__eq__(SecondOP)
+
+    def __ne__(self, SecondOP):
+        if self == SecondOP:
+            return False
+        else:
+            return True
+
+    def is_not(self, SecondOP):
+        return self.__ne__(SecondOP)
+
+    def __str__(self):
+        # function for printing
+        return "(CondTempInF: "+str(self._condtempinF) +\
+            ", EvapTempInF: "+str(self._evaptempinF)+")"
+
+
 def check_size(entry):
     """
         This function returns a list or numpy array of an entry even when
