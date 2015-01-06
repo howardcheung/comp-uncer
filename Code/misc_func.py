@@ -163,7 +163,25 @@ def F2K(T_F):
             temperature in Kelvin
 
     """
-    return 5./9.*(T_F+459.67)
+    return R2K(T_F+459.67)
+
+
+def R2K(T_R):
+    """
+        Convert temperature in Rankine to Kelvin, code from ACHP
+
+        Parameters:
+        ===========
+        T_R: float
+            temperature in degrees Rankine
+
+        Returns:
+        ===========
+        T_K: float
+            temperature in Kelvin
+
+    """
+    return 5./9.*(T_R)
 
 
 def K2F(T_K):
@@ -181,4 +199,22 @@ def K2F(T_K):
             temperature in degrees Fahrenheit
 
     """
-    return T_K*9./5.-459.67
+    return K2R(T_K)-459.67
+
+
+def K2R(T_K):
+    """
+        Convert temperature in Kelvin to Rankine , code from ACHP
+
+        Returns:
+        ===========
+        T_K: float
+            temperature in Kelvin
+
+        Parameters:
+        ===========
+        T_R: float
+            temperature in degrees Rankine
+
+    """
+    return T_K*9./5.
