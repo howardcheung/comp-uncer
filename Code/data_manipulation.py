@@ -199,6 +199,7 @@ if __name__ == "__main__":
 
     #import libraries
     from math import sqrt
+    import random
 
     import exp_uncer
 
@@ -212,6 +213,7 @@ if __name__ == "__main__":
     p_suc = 500.0
     p_dischg = 1000.0
     refri = 'R410A'
+    random.seed(10)  #define seed
 
     # generate random time-series data from expected readings with exp_method
     # and apparatus information
