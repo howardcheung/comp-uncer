@@ -444,7 +444,7 @@ def cal_regression_power(
 
     # estimate uncer_dev
     m = len(para.get_y())
-    t_stat = t.interval(0.95, m-10-1)[1]
+    t_stat = t.interval(0.95, m-10)[1]
     uncer_dev = t_stat*para.get_sigma()
 
     # estimate uncer_cov
