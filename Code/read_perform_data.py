@@ -62,7 +62,8 @@ def parse_one_sh_data(filename):
 def data_filter(
         df, CondTempRange=[float('-inf'), float('inf')],
         EvapTempRange=[float('-inf'), float('inf')],
-        RemovalPoint=[OperatingPoint()]
+        RemovalPoint=[OperatingPoint()],
+        AddPoint=[OperatingPoint()]
         ):
     """
         This file reads the raw file and return a pandas
@@ -93,6 +94,10 @@ def data_filter(
             list of OperatingPoint() that should be excluded in the new
             dataframe
 
+        AddPoint: list
+            list of OperatingPoint() that should be included in the new
+            dataframe
+
         Returns:
         ============
         df_new: pandas dataframe
@@ -110,11 +115,18 @@ def data_filter(
     cond.append(df.EvapTempInF <= EvapTempRange[1])
     for point in RemovalPoint:
         cond.append(df.OperatingPoint != point)
+    addcond = []
+    for point in AddPoint:
+        addcond.append(df.OperatingPoint == point)
 
     # Apply AND to all conditions
     final_condition = cond[0]
     for ii in xrange(1, len(cond)):
         final_condition = final_condition*cond[ii]
+
+    # Apply OR to all conditions
+    for ii in xrange(0, len(addcond)):
+        final_condition = final_condition+addcond[ii]
 
     # Return the data that satisfy all conditions
     return df_new[final_condition]
@@ -134,10 +146,12 @@ if __name__ == '__main__':
     # filter data such that the new dataframe contains data with condensing
     # temperature within 90F and 130F, with evaporating temperature within -5F
     # and 10F and without the operating points (Condensing temp.,
-    # Evaporating temp.) at (90F, -5F) and (100F, 0F)
+    # Evaporating temp.) at (90F, -5F) and (100F, 0F) and with the operating
+    # point at (80, 0)
     df_new = data_filter(
         df, CondTempRange=[90, 130],
         EvapTempRange=[-5, 10],
-        RemovalPoint=[OperatingPoint(90, -5), OperatingPoint(100, 0)]
+        RemovalPoint=[OperatingPoint(90, -5), OperatingPoint(100, 0)],
+        AddPoint=[OperatingPoint(80, 0)]
     )
     print(df_new)
