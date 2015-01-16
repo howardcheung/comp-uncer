@@ -137,13 +137,13 @@ def set_regression_ind(
             to the input condensing temperature and evaporating
             temperature
 
-    """
-
+    """    
+    
     num_data = len(CondTemp)
     X = []
     X.append(np.ones(num_data))
-    X.append(EvapTemp)
-    X.append(CondTemp)
+    X.append([et for et in EvapTemp])
+    X.append([ct for ct in CondTemp])
     X.append([et**2 for et in EvapTemp])
     X.append([et*ct for et, ct in zip(EvapTemp, CondTemp)])
     X.append([ct**2 for ct in CondTemp])
@@ -156,8 +156,8 @@ def set_regression_ind(
     # include uncertainty
     X = []
     X.append(np.zeros(num_data))
-    X.append(UncerEvapTemp)
-    X.append(UncerCondTemp)
+    X.append([uet for uet in UncerEvapTemp])
+    X.append([cet for cet in UncerCondTemp])
     X.append([2.*et*uet for et, uet in zip(EvapTemp, UncerEvapTemp)])
     X.append([sqrt(
         (uet*ct)**2+(uct*et)**2
