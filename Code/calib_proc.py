@@ -7,6 +7,7 @@
 
 import copy
 from math import sqrt
+import pdb
 
 import numpy as np
 from scipy.stats import t
@@ -283,14 +284,15 @@ def set_regression_coeff(para):
     coeff_ori = np.array(para.get_coeff().transpose().tolist()[0])
     dbdtdeltaet = []
     uncer_t = para.get_uncer_X()
+    epsilon = 1.e-2
     for ii in range(n):
         X_plus = copy.deepcopy(X_ori)
-        X_plus[ii, 1] = X_plus[ii, 1]*1.001
-        X_plus[ii, 3] = X_plus[ii, 3]*1.001**2
-        X_plus[ii, 4] = X_plus[ii, 4]*1.001
-        X_plus[ii, 6] = X_plus[ii, 6]*1.001**3
-        X_plus[ii, 7] = X_plus[ii, 7]*1.001**2
-        X_plus[ii, 8] = X_plus[ii, 8]*1.001
+        X_plus[ii, 1] = X_plus[ii, 1]*(1+epsilon)
+        X_plus[ii, 3] = X_plus[ii, 3]*(1+epsilon)**2
+        X_plus[ii, 4] = X_plus[ii, 4]*(1+epsilon)
+        X_plus[ii, 6] = X_plus[ii, 6]*(1+epsilon)**3
+        X_plus[ii, 7] = X_plus[ii, 7]*(1+epsilon)**2
+        X_plus[ii, 8] = X_plus[ii, 8]*(1+epsilon)
         beta_plus = np.array((
             inverse_X_prod(X_plus)*np.transpose(
                 X_plus
@@ -299,18 +301,18 @@ def set_regression_coeff(para):
         dbdtdeltaet.append(
             (
                 beta_plus-coeff_ori
-            )/X_ori[ii, 1]/0.001*uncer_t[ii, 1]
+            )/X_ori[ii, 1]/epsilon*uncer_t[ii, 1]
         )
         del X_plus
 
     for ii in range(n):
         X_plus = copy.deepcopy(X_ori)
-        X_plus[ii, 2] = X_plus[ii, 2]*1.001
-        X_plus[ii, 4] = X_plus[ii, 4]*1.001
-        X_plus[ii, 5] = X_plus[ii, 5]*1.001**2
-        X_plus[ii, 7] = X_plus[ii, 7]*1.001
-        X_plus[ii, 8] = X_plus[ii, 8]*1.001**2
-        X_plus[ii, 9] = X_plus[ii, 9]*1.001**3
+        X_plus[ii, 2] = X_plus[ii, 2]*(1+epsilon)
+        X_plus[ii, 4] = X_plus[ii, 4]*(1+epsilon)
+        X_plus[ii, 5] = X_plus[ii, 5]*(1+epsilon)**2
+        X_plus[ii, 7] = X_plus[ii, 7]*(1+epsilon)
+        X_plus[ii, 8] = X_plus[ii, 8]*(1+epsilon)**2
+        X_plus[ii, 9] = X_plus[ii, 9]*(1+epsilon)**3
         beta_plus = np.array((
             inverse_X_prod(X_plus)*np.transpose(
                 X_plus
@@ -319,7 +321,7 @@ def set_regression_coeff(para):
         dbdtdeltaet.append(
             (
                 beta_plus-coeff_ori
-            )/X_ori[ii, 2]/0.001*uncer_t[ii, 2]
+            )/X_ori[ii, 2]/epsilon*uncer_t[ii, 2]
         )
         del X_plus
     para.set_dBdXdeltaX(np.matrix(dbdtdeltaet))
