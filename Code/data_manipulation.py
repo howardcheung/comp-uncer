@@ -157,8 +157,9 @@ def sat_temp_uncer_cal(pres, uncer_pres, refri, full_output=0):
     # uncertainty is 0.5% in Lemmon(2003) to calculate
     # the uncertainty due to the equation
 
-    if refri is 'R22':
+    if refri is 'R22' or refri is 'R134a':
         # for R22, use the relative uncertainty from Kamei et al. (1995)
+        # for R134a, use the relative unceratinty from Tillner-Roth et al. (1994)
         p_uncer_rel = 0.002
     else:  # use R410A ones as default
         p_uncer_rel = 0.005
