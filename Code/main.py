@@ -2,12 +2,14 @@
 
 """
     This file is the main function that carries out
-	the regression of 6 different maps
+    the regression of 6 different maps
 """
 
 #import libraries
 import copy
+import csv
 from math import sqrt
+import pdb
 import random
 
 from CoolProp.CoolProp import PropsSI as Props
@@ -42,7 +44,7 @@ df['EvapPInkPa'] = [Props(
 )/1000. for T in df.EvapTempInF]
 
 # defind space for uncertainty and new values
-random.seed(10)  # fix the random number generator seed for consistency
+random.seed(80)  # fix the random number generator seed for consistency
 df['MeaPowerInW'] = 0.0
 df['MeaCondPInkPa'] = 0.0
 df['MeaEvapPInkPa'] = 0.0
@@ -57,7 +59,9 @@ df['UncerMeaEvapTempInF'] = 0.0
 # generate random time-series data from expected readings with exp_method
 # and apparatus information
 for ind in df.index:
-    power_data = test.exp_data_generator(df.PowerInW[ind], power_meter)
+    power_data = test.exp_data_generator(df.PowerInW[ind], 
+        power_meter, first_rel=0.03
+    )
     p_suc_data = test.exp_data_generator(
         df.EvapPInkPa[ind], p_trans, first_abs=0.9
     )
@@ -92,7 +96,7 @@ for ind in df.index:
 # need to recode to read the conditions from files
 # including testing cases and ARI cases
 df_maps = {}
-maps = ["Map 1", "Map 2", "Map 3", "Map 4", "Map 5", "Map 6"]
+maps = ["Map 1", "Map 2", "Map 3", "Map 4", "Map 5", "Map 6", "Map 7", "Map 8"]
 # map 1
 df_maps[maps[0]] = read_perform_data.data_filter(
     df, CondTempRange=[80, 150], EvapTempRange=[5, 55],
@@ -207,6 +211,7 @@ df_maps["testing"] = read_perform_data.data_filter(
         OperatingPoint(150, 30), OperatingPoint(120, 25)
     ],
 )
+
 # ARI points
 df_maps["ARI"] = read_perform_data.data_filter(
     df, CondTempRange=[80, 80], EvapTempRange=[-20, -20],
@@ -218,10 +223,48 @@ df_maps["ARI"] = read_perform_data.data_filter(
     ],
 )
 
+# All points
+df_maps["All"] = read_perform_data.data_filter(
+    df, CondTempRange=[80, 150], EvapTempRange=[-20, 55]
+)
+
+# use the same range as map 1 but much fewer data points to
+# create map 7
+df_maps[maps[6]] = read_perform_data.data_filter(
+    df, CondTempRange=[80, 80], EvapTempRange=[5, 5],
+    AddPoint=[
+        OperatingPoint(100, 5), OperatingPoint(120, 5),
+        OperatingPoint(140, 5), OperatingPoint(150, 20),
+        OperatingPoint(130, 20), OperatingPoint(110, 20),
+        OperatingPoint(90, 20), OperatingPoint(80, 35),
+        OperatingPoint(100, 35), OperatingPoint(120, 35),
+        OperatingPoint(140, 35), OperatingPoint(150, 55),
+        OperatingPoint(130, 55), OperatingPoint(110, 55),
+        OperatingPoint(90, 55),
+        OperatingPoint(130, 45), OperatingPoint(110, 45),
+        OperatingPoint(100, 45), OperatingPoint(110, 30),
+        OperatingPoint(90, 5), OperatingPoint(80, 45),
+        OperatingPoint(90, 35), OperatingPoint(120, 45)
+    ],
+)
+
+# ARI map and with 1 dof
+df_maps[maps[7]] = read_perform_data.data_filter(
+    df, CondTempRange=[80, 80], EvapTempRange=[5, 5],
+    AddPoint=[
+        OperatingPoint(130, 55), OperatingPoint(110, 55),
+        OperatingPoint(90, 55),
+        OperatingPoint(130, 45), OperatingPoint(110, 45),
+        OperatingPoint(100, 45), OperatingPoint(110, 30),
+        OperatingPoint(90, 5), OperatingPoint(80, 45),
+        OperatingPoint(90, 35), OperatingPoint(120, 45)
+    ],
+)
+
 # regression for each map
 map_infos = {}
 for map in df_maps:
-    if map != "ARI" and map != "testing":
+    if map != "ARI" and map != "testing" and map != "All":
         para = calib_proc.set_regression_ind(
             df_maps[map].MeaCondTempInF, df_maps[map].MeaEvapTempInF,
             df_maps[map].UncerMeaCondTempInF, df_maps[map].UncerMeaEvapTempInF
@@ -236,13 +279,18 @@ for map in df_maps:
         del para
 
 # calculate and plot the parity plot for each map
+result_dict = {}
 for map in map_infos:
     power_pre = []
     uncer_power_pre = []
     df_temp = map_infos[map].map_data
-    rel_uncer_power=np.mean(
+    rel_uncer_power = np.mean(
         df_temp.UncerMeaPowerInW/df_temp.MeaPowerInW
     )
+
+    # at training data points
+    ss_tot_train = 0.0
+    ss_res_train = 0.0
     for ind in map_infos[map].map_data.index:
         power, uncer_power = \
             calib_proc.cal_regression_power(
@@ -256,6 +304,11 @@ for map in map_infos:
             )
         power_pre.append(power)
         uncer_power_pre.append(uncer_power)
+        ss_tot_train = ss_tot_train+(power-np.mean(
+            df_temp.MeaPowerInW
+        ))**2
+        ss_res_train = ss_res_train+(power-df_temp.MeaPowerInW[ind])**2
+
     misc_func.parity_plot(
         df_temp.MeaPowerInW, df_temp.UncerMeaPowerInW,
         'Measured \nPower Consumption [W]',
@@ -263,3 +316,164 @@ for map in map_infos:
         'Predicted \nPower Consumption [W]',
         '..//Results//'+map+'_scatter.pdf'
     )
+
+    # at ARI and testing conditions
+    cases = ["ARI", "testing", "All"]
+    result = []
+    result.append([
+        "Map", "MeaPower", "UncerMeaPower", "CondTempInF", "EvapTempInF", "EstPower",
+        "UncerOverall", "UncerInput", "UncerOutput",
+        "UncerTrain", "UncerDev", "UncerCov", "PowerDiff"
+    ])
+    ss_tot_all = 0.0
+    ss_res_all = 0.0
+    for case in cases:
+        power_pre = []
+        uncer_power_pre = []
+        for ind in df_maps[case].index:
+            power, uncer_power, uncer_input, uncer_output, \
+                uncer_train, uncer_dev, uncer_cov = \
+                    calib_proc.cal_regression_power(
+                        t_evap=df_maps[case].MeaEvapTempInF[ind],
+                        t_cond=df_maps[case].MeaCondTempInF[ind],
+                        uncer_t_evap=df_maps[case].UncerMeaEvapTempInF[ind],
+                        uncer_t_cond=df_maps[case].UncerMeaCondTempInF[ind],
+                        rel_uncer_power=rel_uncer_power,
+                        abs_uncer_power=0.0,
+                        para=map_infos[map].map_para, full_output=True
+                    )
+            power_pre.append(power)
+            uncer_power_pre.append(uncer_power)
+
+            # write results to file
+            result.append([
+                case, "%.5e"%df_maps[case].MeaPowerInW[ind],
+                "%.5e"%df_maps[case].UncerMeaPowerInW[ind],
+                "%.5e"%df_maps[case].MeaCondTempInF[ind],
+                "%.5e"%df_maps[case].MeaEvapTempInF[ind],
+                "%.5e"%power, "%.5e"%uncer_power,
+                "%.5e"%uncer_input, "%.5e"%uncer_output,
+                "%.5e"%uncer_train, "%.5e"%uncer_dev,
+                "%.5e"%uncer_cov,
+                "%.5e"%(power-df_maps[case].MeaPowerInW[ind])
+            ])
+            
+            if case is "All":
+                ss_tot_all = ss_tot_all+(power-np.mean(
+                    df_maps[case].MeaPowerInW
+                ))**2
+                ss_res_all = ss_res_all+(
+                    power-df_maps[case].MeaPowerInW[ind]
+                )**2
+                
+
+        misc_func.parity_plot(
+            df_maps[case].MeaPowerInW, df_maps[case].UncerMeaPowerInW,
+            'Measured \nPower Consumption [W]',
+            power_pre, uncer_power_pre,
+            'Predicted \nPower Consumption [W]',
+            '..//Results//'+map+'_'+case+'_scatter.pdf'
+        )
+
+    result_dict[map] = {
+        'r2_train': 1-ss_res_train/ss_tot_train,
+        'r2_all': 1-ss_res_all/ss_tot_all,
+        'cov_train': map_infos[map].map_para.get_sigma()/np.mean(
+            df_temp.MeaPowerInW
+        ),
+        'cov_all': sqrt(
+            ss_res_all/(len(df_maps["All"].index)-10.)
+        )/np.mean(
+            df_maps["All"].MeaPowerInW
+        )
+    }
+
+    ofile =  open('..//Results//'+map+'_all_result.csv', 'wb')
+    writersummary = csv.writer(ofile)
+    for row in result:
+        writersummary.writerow(row)
+    ofile.close()
+    
+    # detailed analysis of different uncertainty components
+    case_points = {}
+    case_points["ARI_points"] = [
+        OperatingPoint(130, 45), OperatingPoint(110, 45),
+        OperatingPoint(100, 45), OperatingPoint(110, 30),
+        OperatingPoint(90, 5), OperatingPoint(80, 45),
+        OperatingPoint(90, 35), OperatingPoint(120, 45)
+    ]
+    case_points["testing_points"] = [
+        OperatingPoint(80, -20), OperatingPoint(100, -20),
+        OperatingPoint(120, -10), OperatingPoint(150, 10),
+        OperatingPoint(150, 55), OperatingPoint(120, 55),
+        OperatingPoint(80, 55), OperatingPoint(110, 20),
+        OperatingPoint(110, 25), OperatingPoint(120, 20),
+        OperatingPoint(120, 30), OperatingPoint(80, 15),
+        OperatingPoint(150, 30), OperatingPoint(120, 25)
+    ]
+    result = []
+    result.append([
+        "Map", "Case", "CondTempInF", "EvapTempInF", "EstPower",
+        "UncerOverall", "UncerInput", "UncerOutput",
+        "UncerTrain", "UncerDev", "UncerCov"
+    ])
+    for cases in case_points:
+        for point in case_points[cases]:
+            power, uncer_power, uncer_input, uncer_output, \
+                uncer_train, uncer_dev, uncer_cov = \
+                    calib_proc.cal_regression_power(
+                        t_evap=point.get_EvapTempInF(),
+                        t_cond=point.get_CondTempInF(),
+                        uncer_t_evap=0.9,
+                        uncer_t_cond=0.9,
+                        rel_uncer_power=rel_uncer_power,
+                        abs_uncer_power=0.0,
+                        para=map_infos[map].map_para,
+                        full_output=True
+                    )
+            result.append([
+                map, cases, "%.5e"%(point.get_CondTempInF()),
+                "%.5e"%(point.get_EvapTempInF()),
+                "%.5e"%power, "%.5e"%uncer_power,
+                "%.5e"%uncer_input, "%.5e"%uncer_output,
+                "%.5e"%uncer_train, "%.5e"%uncer_dev,
+                "%.5e"%uncer_cov
+            ])
+    ofile =  open('..//Results//'+map+'_result.csv', 'wb')
+    writersummary = csv.writer(ofile)
+    for row in result:
+        writersummary.writerow(row)
+    ofile.close()
+
+# compare the accuracies of different maps
+result = [[
+    'Map', 'Mean square error in data', 'r2_train',
+    'r2_all', 'cov_train', 'cov_all'
+]]
+coeff = []
+for map in map_infos:
+    result.append([
+        map, "%.5e"%(map_infos[map].map_para.get_sigma()),
+        "%.5e"%(result_dict[map]['r2_train']),
+        "%.5e"%(result_dict[map]['r2_all']),
+        "%.5e"%(result_dict[map]['cov_train']),
+        "%.5e"%(result_dict[map]['cov_all']),
+    ])
+    coeff_entries = [map]
+    for coeff_ind in map_infos[map].map_para.get_coeff():
+        coeff_entries.append("%.5e"%coeff_ind)
+    coeff.append(coeff_entries)
+
+ofile =  open('..//Results//overall_result.csv', 'wb')
+writersummary = csv.writer(ofile)
+for row in result:
+    writersummary.writerow(row)
+ofile.close()
+
+ofile =  open('..//Results//coeff.csv', 'wb')
+writersummary = csv.writer(ofile)
+for row in coeff:
+    writersummary.writerow(row)
+ofile.close()
+    
+
