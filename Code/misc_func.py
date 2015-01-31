@@ -167,6 +167,24 @@ def F2K(T_F):
     return R2K(T_F+459.67)
 
 
+def F2C(T_F):
+    """
+        Convert temperature in Fahrenheit to Celcius, code from ACHP
+
+        Parameters:
+        ===========
+        T_F: float
+            temperature in degrees Fahrenheit
+
+        Returns:
+        ===========
+        T_C: float
+            temperature in Celcius
+
+    """
+    return R2K(T_F-32.0)
+
+
 def R2K(T_R):
     """
         Convert temperature in Rankine to Kelvin, code from ACHP
