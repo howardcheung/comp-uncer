@@ -1,0 +1,71 @@
+\section{Sources of uncertainty}
+
+Uncertainty of the compressor map output is the range where the true value of the map output may be relative to the map output. It consists of multiple components and can be grouped as follows:
+
+\begin{itemize}
+\item Uncertainty due to inputs
+\item Uncertainty due to training data
+\item Uncertainty due ot model random error
+\item Uncertainty due to outputs
+\end{itemize}
+
+\subsection{Uncertainty due to inputs}
+Uncertainty due to inputs is the uncertainty propagated to the map output due to the uncertainty in the inputs to the maps. The inputs to the map (evaporating and condenser temperature) are usually obtained by converting pressure measurement to saturation temperature with refrigerant equations of state, and the estimated saturation temperature contains uncertainty from both the equation of state and the pressure measurement. The equation of state of R22 estimates saturation pressure at an uncertainty of 0.2\% \cite{Kamei:1995}. When the equation of state estimates an saturation temperature at a given pressure, this uncertainty is transformed into a component of the uncertainty of the saturation temperature as shown in Eqns. (\ref{eq:uncer_p_eos}) and (\ref{eq:uncer_t_eos}).
+
+\begin{equation}
+\frac{\Delta P_{sat,EOS}}{P_{sat}(T)} = 0.002
+\label{eq:uncer_p_eos}
+\end{equation}
+
+\begin{equation}
+\Delta {T_{sat,EOS}} = |\frac{{\partial {T_{sat}}({P})}}{{\partial {P}}}|\Delta {P_{sat,EOS}}
+\label{eq:uncer_t_eos}
+\end{equation}
+
+where $\Delta P_{sat,EOS}$ is the uncertainty of saturation pressure as a result of uncertainty of the equation of state, $P_{sat}(T)$ is the saturation pressure from temperature $T$, $\Delta {T_{sat,EOS}}$ is the uncertainty of saturation temperature as a result of uncertainty of the equation of state and ${T_{sat}}({P})$ is the saturation temperature at pressure $P$.
+
+The component of the uncertainty due to pressure measurement in saturation temperature values is calculated by Eqn. (\ref{eq:uncer_t_mea}).
+
+\begin{equation}
+\Delta {T_{sat,mea}} = |\frac{{\partial {T_{sat}}({P})}}{{\partial {P}}}|\Delta {P_{sat,mea}}
+\label{eq:uncer_t_mea}
+\end{equation}
+
+where $\Delta {T_{sat,mea}}$ is the uncertainty of saturation temperature as a result of pressure measurement and $\Delta P_{sat,mea}$ is the uncertainty of pressure measurement.
+
+The overall uncertainty of the saturation temperature is given by Eqn. (\ref{eq:uncer_t}).
+
+\begin{equation}
+\Delta {T_{sat}} = \sqrt {{{(\Delta {T_{sat,EOS}})}^2} + {{(\Delta {T_{sat,mea}})}^2}}
+\label{eq:uncer_t}
+\end{equation}
+
+The uncertainty of the map output propagated from the inputs of condensing temperature and evaporating temperature can be given by Eqn. (\ref{eq:uncer_w_input}).
+
+\begin{equation}
+\Delta {\hat{\dot{W}}_{input}} = \sqrt {{(\frac{{\partial \hat{\dot{W}}}}{{\partial {T_{evap}}}}\Delta {T_{evap}})^2} + {(\frac{{\partial \hat{\dot{W}}}}{{\partial {T_{cond}}}}\Delta {T_{cond}})^2}}
+\label{eq:uncer_w_input}
+\end{equation}
+
+where $\Delta {\hat{\dot{W}}_{input}}$ is the uncertainty due to inputs at the map output
+
+\subsection{Uncertainty due to training data}
+Uncertainty due to training data is the uncertainty propagated to the map output from the training data through the map coefficients. This can be understood by considering the estimation of the map coefficients as a function of the training data as Eqn. (\ref{eq:beta_train}).
+
+\begin{equation}
+\hat{ \vec {\beta}}  = g({T_{evap,train,1}},...,{T_{evap,train,n}},{T_{cond,train,1}},...,{T_{cond,train,n}},{\dot{W}_{train,1}},...,{\dot{W}_{train,n}})
+\label{eq:beta_train}
+\end{equation}
+
+The uncertainty propagated to the map output through function $g$ and $\hat{ \vec {\beta}}$ in Eqn. (\ref{eq:beta_train}) is calculated by Eqn. (\ref{eq:uncer_w_train}).
+
+\begin{equation}
+\Delta {\hat{\dot{W}}_{train}} = \sqrt{\begin{gathered}
+  \Sigma_{j=1}^n(\Sigma _{i = 1}^m(\frac{{\partial \hat \dot W}}{{\partial {\beta _i}}}\frac{{\partial {\beta _i}}}{{\partial {T_{evap,train,j}}}})\Delta {T_{evap,train,j}})^2  \hfill \\
+  +\Sigma_{j=1}^n(\Sigma _{i = 1}^m(\frac{{\partial \hat \dot W}}{{\partial {\beta _i}}}\frac{{\partial {\beta _i}}}{{\partial {T_{cond,train,j}}}})\Delta {T_{cond,train,j}})^2 \hfill \\
+   +\Sigma_{j=1}^n(\Sigma _{i = 1}^m(\frac{{\partial \hat \dot W}}{{\partial {\beta _i}}}\frac{{\partial {\beta _i}}}{{\partial {\dot{W}_{,train,j}}}})\Delta {\dot{W}_{train,j}})^2 \hfill \\ 
+\end{gathered}}
+\label{eq:uncer_w_train}
+\end{equation}
+
+where $\Delta {\hat{\dot{W}}_{train}}$ is the uncertainty due to training data at the map output
