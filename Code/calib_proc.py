@@ -138,8 +138,8 @@ def set_regression_ind(
             to the input condensing temperature and evaporating
             temperature
 
-    """    
-    
+    """
+
     num_data = len(CondTemp)
     X = []
     X.append(np.ones(num_data))
@@ -332,7 +332,7 @@ def set_regression_coeff(para):
 def cal_regression_power(
     t_evap, t_cond, uncer_t_evap, uncer_t_cond,
     rel_uncer_power, abs_uncer_power,
-    para, full_output=False
+    para, full_output=False, dist_output=False
 ):
     """
         Estimate the compressor power and
@@ -368,6 +368,11 @@ def cal_regression_power(
             Whether to output all other uncertainties.
             Default false.
 
+        dist_output: boolean
+            Whether to output all components of
+            uncertainty from training data in a
+            numpy array
+
         Returns:
         ===========
         power: float
@@ -395,6 +400,10 @@ def cal_regression_power(
         uncer_cov: float
             Uncertainty from covariance in W. Only
             output when full_output=True
+
+        uncer_train_dist: float
+            Components of uncertainty from training
+            datain W. Only output when dist_output=True
 
     """
 
@@ -444,6 +453,16 @@ def cal_regression_power(
         train_y_entry, train_y_entry
     )).sum())
 
+    if dist_output:
+        uncer_train_comp = np.array([
+            np.sqrt(qq) for qq in
+            (np.multiply(
+                train_x_entry, train_x_entry
+            ).tolist()+np.multiply(
+                train_y_entry, train_y_entry
+            ).tolist())
+        ])
+
     # estimate uncer_dev
     m = len(para.get_y())
     t_stat = t.interval(0.95, m-10)[1]
@@ -464,10 +483,18 @@ def cal_regression_power(
     )
 
     if full_output:
-        return power, uncer, uncer_input, uncer_output, \
-            uncer_train, uncer_dev, uncer_cov
+        if dist_output:
+            return power, uncer, uncer_input, uncer_output, \
+                uncer_train, uncer_dev, uncer_cov, \
+                uncer_train_comp
+        else:
+            return power, uncer, uncer_input, uncer_output, \
+                uncer_train, uncer_dev, uncer_cov
     else:
-        return power, uncer
+        if dist_output:
+            return power, uncer, uncer_train_comp
+        else:
+            return power, uncer
 
 
 if __name__ == '__main__':
@@ -480,6 +507,7 @@ if __name__ == '__main__':
     import random
 
     from CoolProp.CoolProp import PropsSI as Props
+    import pylab as plt
 
     import data_manipulation
     import exp_uncer
@@ -619,3 +647,26 @@ if __name__ == '__main__':
         rel_uncer_power=0.005, abs_uncer_power=0.0,
         para=para, full_output=True
     ))
+
+    power, uncer, uncer_input, uncer_output, \
+        uncer_train, uncer_dev, uncer_cov, \
+        uncer_train_comp = cal_regression_power(
+            t_evap=-25., t_cond=170.,
+            uncer_t_evap=.3, uncer_t_cond=.3,
+            rel_uncer_power=0.005, abs_uncer_power=0.0,
+            para=para, full_output=True, dist_output=True
+        )
+    plt.rc('xtick', labelsize='x-large')
+    plt.rc('ytick', labelsize='x-large')
+    plt.hist(uncer_train_comp, bins=len(uncer_train_comp)/10)
+    plt.gcf().subplots_adjust(bottom=0.2)
+    plt.xlabel(
+        'Uncertainty from training data\n' +
+        'per temperature or power measurement [W]',
+        fontsize='x-large'
+    )
+    plt.ylabel(
+        'Number of measurement', fontsize='x-large',
+        multialignment='center'
+    )
+    plt.show()

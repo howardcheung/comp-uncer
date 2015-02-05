@@ -14,6 +14,7 @@ import random
 
 from CoolProp.CoolProp import PropsSI as Props
 import numpy as np
+import scipy
 import pylab as plt
 
 import calib_proc
@@ -59,8 +60,8 @@ df['UncerMeaEvapTempInF'] = 0.0
 # generate random time-series data from expected readings with exp_method
 # and apparatus information
 for ind in df.index:
-    power_data = test.exp_data_generator(df.PowerInW[ind], 
-        power_meter, first_rel=0.03
+    power_data = test.exp_data_generator(
+        df.PowerInW[ind], power_meter, first_rel=0.03
     )
     p_suc_data = test.exp_data_generator(
         df.EvapPInkPa[ind], p_trans, first_abs=0.9
@@ -280,7 +281,10 @@ for map in df_maps:
 
 # calculate and plot the parity plot for each map
 result_dict = {}
+rel_uncer_pack = []
 for map in map_infos:
+    max_rel_uncer = {'rel_uncer': 0.0}
+    min_rel_uncer = {'rel_uncer': float('inf')}
     power_pre = []
     uncer_power_pre = []
     df_temp = map_infos[map].map_data
@@ -321,9 +325,11 @@ for map in map_infos:
     cases = ["ARI", "testing", "All"]
     result = []
     result.append([
-        "Map", "MeaPower", "UncerMeaPower", "CondTempInF", "EvapTempInF", "EstPower",
+        "Map", "MeaPower", "UncerMeaPower", "CondTempInF",
+        "EvapTempInF", "EstPower",
         "UncerOverall", "UncerInput", "UncerOutput",
-        "UncerTrain", "UncerDev", "UncerCov", "PowerDiff"
+        "UncerTrain", "UncerDev", "UncerCov", "PowerDiff",
+        "Skewness"
     ])
     ss_tot_all = 0.0
     ss_res_all = 0.0
@@ -332,32 +338,55 @@ for map in map_infos:
         uncer_power_pre = []
         for ind in df_maps[case].index:
             power, uncer_power, uncer_input, uncer_output, \
-                uncer_train, uncer_dev, uncer_cov = \
-                    calib_proc.cal_regression_power(
-                        t_evap=df_maps[case].MeaEvapTempInF[ind],
-                        t_cond=df_maps[case].MeaCondTempInF[ind],
-                        uncer_t_evap=df_maps[case].UncerMeaEvapTempInF[ind],
-                        uncer_t_cond=df_maps[case].UncerMeaCondTempInF[ind],
-                        rel_uncer_power=rel_uncer_power,
-                        abs_uncer_power=0.0,
-                        para=map_infos[map].map_para, full_output=True
-                    )
+                uncer_train, uncer_dev, uncer_cov, \
+                uncer_train_comp = \
+                calib_proc.cal_regression_power(
+                    t_evap=df_maps[case].MeaEvapTempInF[ind],
+                    t_cond=df_maps[case].MeaCondTempInF[ind],
+                    uncer_t_evap=df_maps[case].UncerMeaEvapTempInF[ind],
+                    uncer_t_cond=df_maps[case].UncerMeaCondTempInF[ind],
+                    rel_uncer_power=rel_uncer_power,
+                    abs_uncer_power=0.0,
+                    para=map_infos[map].map_para, full_output=True,
+                    dist_output=True
+                )
+            if uncer_power/power > max_rel_uncer['rel_uncer']:
+                max_rel_uncer = {
+                    'rel_uncer': uncer_power/power,
+                    'map': map,
+                    'case': case,
+                    'ind': ind
+                }
+            if uncer_power/power < min_rel_uncer['rel_uncer']:
+                min_rel_uncer = {
+                    'rel_uncer': uncer_power/power,
+                    'map': map,
+                    'case': case,
+                    'ind': ind
+                }
             power_pre.append(power)
             uncer_power_pre.append(uncer_power)
+            rel_comp_trn = [
+                ele/uncer_train for ele in [
+                    qq[0] for qq in uncer_train_comp
+                ]
+            ]
+            skew_trn = scipy.stats.skew(rel_comp_trn)
 
             # write results to file
             result.append([
-                case, "%.5e"%df_maps[case].MeaPowerInW[ind],
-                "%.5e"%df_maps[case].UncerMeaPowerInW[ind],
-                "%.5e"%df_maps[case].MeaCondTempInF[ind],
-                "%.5e"%df_maps[case].MeaEvapTempInF[ind],
-                "%.5e"%power, "%.5e"%uncer_power,
-                "%.5e"%uncer_input, "%.5e"%uncer_output,
-                "%.5e"%uncer_train, "%.5e"%uncer_dev,
-                "%.5e"%uncer_cov,
-                "%.5e"%(power-df_maps[case].MeaPowerInW[ind])
+                case, "%.5e" % df_maps[case].MeaPowerInW[ind],
+                "%.5e" % df_maps[case].UncerMeaPowerInW[ind],
+                "%.5e" % df_maps[case].MeaCondTempInF[ind],
+                "%.5e" % df_maps[case].MeaEvapTempInF[ind],
+                "%.5e" % power, "%.5e" % uncer_power,
+                "%.5e" % uncer_input, "%.5e" % uncer_output,
+                "%.5e" % uncer_train, "%.5e" % uncer_dev,
+                "%.5e" % uncer_cov,
+                "%.5e" % (power-df_maps[case].MeaPowerInW[ind]),
+                "%.5e" % skew_trn,
             ])
-            
+
             if case is "All":
                 ss_tot_all = ss_tot_all+(power-np.mean(
                     df_maps[case].MeaPowerInW
@@ -365,7 +394,6 @@ for map in map_infos:
                 ss_res_all = ss_res_all+(
                     power-df_maps[case].MeaPowerInW[ind]
                 )**2
-                
 
         misc_func.parity_plot(
             df_maps[case].MeaPowerInW, df_maps[case].UncerMeaPowerInW,
@@ -388,12 +416,12 @@ for map in map_infos:
         )
     }
 
-    ofile =  open('..//Results//'+map+'_all_result.csv', 'wb')
+    ofile = open('..//Results//'+map+'_all_result.csv', 'wb')
     writersummary = csv.writer(ofile)
     for row in result:
         writersummary.writerow(row)
     ofile.close()
-    
+
     # detailed analysis of different uncertainty components
     case_points = {}
     case_points["ARI_points"] = [
@@ -421,29 +449,32 @@ for map in map_infos:
         for point in case_points[cases]:
             power, uncer_power, uncer_input, uncer_output, \
                 uncer_train, uncer_dev, uncer_cov = \
-                    calib_proc.cal_regression_power(
-                        t_evap=point.get_EvapTempInF(),
-                        t_cond=point.get_CondTempInF(),
-                        uncer_t_evap=0.9,
-                        uncer_t_cond=0.9,
-                        rel_uncer_power=rel_uncer_power,
-                        abs_uncer_power=0.0,
-                        para=map_infos[map].map_para,
-                        full_output=True
-                    )
+                calib_proc.cal_regression_power(
+                    t_evap=point.get_EvapTempInF(),
+                    t_cond=point.get_CondTempInF(),
+                    uncer_t_evap=0.9,
+                    uncer_t_cond=0.9,
+                    rel_uncer_power=rel_uncer_power,
+                    abs_uncer_power=0.0,
+                    para=map_infos[map].map_para,
+                    full_output=True
+                )
             result.append([
-                map, cases, "%.5e"%(point.get_CondTempInF()),
-                "%.5e"%(point.get_EvapTempInF()),
-                "%.5e"%power, "%.5e"%uncer_power,
-                "%.5e"%uncer_input, "%.5e"%uncer_output,
-                "%.5e"%uncer_train, "%.5e"%uncer_dev,
-                "%.5e"%uncer_cov
+                map, cases, "%.5e" % (point.get_CondTempInF()),
+                "%.5e" % (point.get_EvapTempInF()),
+                "%.5e" % power, "%.5e" % uncer_power,
+                "%.5e" % uncer_input, "%.5e" % uncer_output,
+                "%.5e" % uncer_train, "%.5e" % uncer_dev,
+                "%.5e" % uncer_cov
             ])
-    ofile =  open('..//Results//'+map+'_result.csv', 'wb')
+    ofile = open('..//Results//'+map+'_result.csv', 'wb')
     writersummary = csv.writer(ofile)
     for row in result:
         writersummary.writerow(row)
     ofile.close()
+
+    rel_uncer_pack.append(max_rel_uncer)
+    rel_uncer_pack.append(min_rel_uncer)
 
 # compare the accuracies of different maps
 result = [[
@@ -453,27 +484,96 @@ result = [[
 coeff = []
 for map in map_infos:
     result.append([
-        map, "%.5e"%(map_infos[map].map_para.get_sigma()),
-        "%.5e"%(result_dict[map]['r2_train']),
-        "%.5e"%(result_dict[map]['r2_all']),
-        "%.5e"%(result_dict[map]['cov_train']),
-        "%.5e"%(result_dict[map]['cov_all']),
+        map, "%.5e" % (map_infos[map].map_para.get_sigma()),
+        "%.5e" % (result_dict[map]['r2_train']),
+        "%.5e" % (result_dict[map]['r2_all']),
+        "%.5e" % (result_dict[map]['cov_train']),
+        "%.5e" % (result_dict[map]['cov_all']),
     ])
     coeff_entries = [map]
     for coeff_ind in map_infos[map].map_para.get_coeff():
-        coeff_entries.append("%.5e"%coeff_ind)
+        coeff_entries.append("%.5e" % coeff_ind)
     coeff.append(coeff_entries)
 
-ofile =  open('..//Results//overall_result.csv', 'wb')
+ofile = open('..//Results//overall_result.csv', 'wb')
 writersummary = csv.writer(ofile)
 for row in result:
     writersummary.writerow(row)
 ofile.close()
 
-ofile =  open('..//Results//coeff.csv', 'wb')
+ofile = open('..//Results//coeff.csv', 'wb')
 writersummary = csv.writer(ofile)
 for row in coeff:
     writersummary.writerow(row)
 ofile.close()
-    
 
+# plot the histogram of the components of uncertainty from training data
+# for the data points with the highest and smallest relative uncertainty
+# at output
+for pack in rel_uncer_pack:
+    map = pack['map']
+    case = pack['case']
+    ind = pack['ind']
+    df_temp = map_infos[map].map_data
+    rel_uncer_power = np.mean(
+        df_temp.UncerMeaPowerInW/df_temp.MeaPowerInW
+    )
+    power, uncer_power, uncer_input, uncer_output, \
+        uncer_train, uncer_dev, uncer_cov, \
+        uncer_train_comp = calib_proc.cal_regression_power(
+            t_evap=df_maps[case].MeaEvapTempInF[ind],
+            t_cond=df_maps[case].MeaCondTempInF[ind],
+            uncer_t_evap=df_maps[case].UncerMeaEvapTempInF[ind],
+            uncer_t_cond=df_maps[case].UncerMeaCondTempInF[ind],
+            rel_uncer_power=rel_uncer_power,
+            abs_uncer_power=0.0,
+            para=map_infos[map].map_para, full_output=True,
+            dist_output=True
+        )
+    rel_comp = [ele/power for ele in [qq[0] for qq in uncer_train_comp]]
+    rel_comp_trn = [
+        ele/uncer_train for ele in [qq[0] for qq in uncer_train_comp]
+    ]
+
+    fig = plt.figure(1)
+    plt.rc('xtick', labelsize='x-large')
+    plt.rc('ytick', labelsize='x-large')
+    plt.hist(rel_comp, bins=20)
+    plt.gcf().subplots_adjust(bottom=0.2)
+    plt.xlabel(
+        'Relative uncertainty from training data\n' +
+        'per temperature or power measurement',
+        fontsize='x-large'
+    )
+    plt.ylabel(
+        'Number of measurement', fontsize='x-large',
+        multialignment='center'
+    )
+    graph_filename = '..//Results//'+map+"_" +\
+        "%.5e" % misc_func.F2C(df_maps[case].MeaEvapTempInF[ind])+"_" +\
+        "%.5e" % misc_func.F2C(df_maps[case].MeaCondTempInF[ind])+"_" +\
+        "%.5e" % (pack['rel_uncer'])+".pdf"
+    plt.savefig(graph_filename, dpi=300)
+    plt.close(fig)
+
+    fig = plt.figure(2)
+    plt.rc('xtick', labelsize='x-large')
+    plt.rc('ytick', labelsize='x-large')
+    plt.hist(rel_comp_trn, bins=20)
+    plt.gcf().subplots_adjust(bottom=0.25)
+    plt.xlabel(
+        'Uncertainty from training data\n' +
+        'per temperature or power measurement\n' +
+        'normalized by uncertainty from training data',
+        fontsize='x-large'
+    )
+    plt.ylabel(
+        'Number of measurement', fontsize='x-large',
+        multialignment='center'
+    )
+    graph_filename = '..//Results//'+map+"_trn_" +\
+        "%.5e" % misc_func.F2C(df_maps[case].MeaEvapTempInF[ind])+"_" +\
+        "%.5e" % misc_func.F2C(df_maps[case].MeaCondTempInF[ind])+"_" +\
+        "%.5e" % (pack['rel_uncer'])+".pdf"
+    plt.savefig(graph_filename, dpi=300)
+    plt.close(fig)
