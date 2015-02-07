@@ -577,3 +577,49 @@ for pack in rel_uncer_pack:
         "%.5e" % (pack['rel_uncer'])+".pdf"
     plt.savefig(graph_filename, dpi=300)
     plt.close(fig)
+
+#print the table for appendix
+str_print = []
+str_print.append("\\appendix")
+str_print.append("\\section*{Appendix}")
+str_print.append("\\setcounter{section}{1}")
+str_print.append("\\begin{table}[h]")
+str_print.append("\\caption{\\label{tb:appendix}Training data}")
+str_print.append("\\begin{center}")
+str_print.append("\\begin{tabular}{llllllllll}")
+str_print.append("\\br")
+str_print.append(
+    "$T_{cond}$ [$^\\circ C$] &" + 
+    "$T_{evap}$ [$^\\circ C$] &" +
+    "$\\dot{W}$ [W] &" +
+    "Map 1 & Map 2 & Map 3 & Map 4 & Map 5 & Map 6 & Map 7 \\\\"
+)
+str_print.append("\\mr")
+maps = ["Map 1", "Map 2", "Map 3", "Map 4", "Map 5", "Map 6", "Map 7"]
+for ind in df.index:
+    string_in = "%.2f" % (misc_func.F2C(df.MeaCondTempInF[ind]))
+    string_in = string_in+"$\\pm$"+"%.2f" % (misc_func.R2K(df.UncerMeaCondTempInF[ind]))
+    string_in = string_in+" & " +\
+        "%.2f" % (misc_func.F2C(df.MeaEvapTempInF[ind]))
+    string_in = string_in+"$\\pm$"+"%.2f" % (misc_func.R2K(df.UncerMeaEvapTempInF[ind]))
+    string_in = string_in+" & " +\
+        "%.1f" % (df.MeaPowerInW[ind])
+    string_in = string_in+"$\\pm$"+"%.1f" % (df.UncerMeaPowerInW[ind])
+    for map in maps:
+        exist = read_perform_data.chcek_exist(
+            df_maps[map], df.OperatingPoint[ind]
+        )
+        if exist:
+            string_in = string_in+"& "+"$\\surd$ "
+        else:
+            string_in = string_in+"& "
+    string_in = string_in+"\\\\"
+    str_print.append(string_in)
+str_print.append("\\br")
+str_print.append("\\end{tabular}")
+str_print.append("\\end{center}")
+str_print.append("\\end{table}")
+ofile = open('..//Paper//appendix.tex', 'wb')
+for row in str_print:
+    ofile.write(row+"\n")
+ofile.close()
