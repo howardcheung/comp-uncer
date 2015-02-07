@@ -1,6 +1,6 @@
 
 %for compiling, enter
-%pdflatex main_doc.tex
+%pdflatex main_doc.tex & bibtex main_doc.aux & pdflatex main_doc.tex & pdflatex main_doc.tex
 
 \documentclass[a4paper]{jpconf}
 \bibliographystyle{iopart-num}
@@ -35,9 +35,6 @@ Empirical compressor maps are a simple and reliable approach for heating and coo
 \input{sources_of_uncertainty}
 
 \section*{References}
-\begin{thebibliography}{9}
-\bibitem{Kamei:1995} Taylor B N and Kuyatt C. E. 1994 {\it NIST Technical Note 1297}
-\end{thebibliography}
 \bibliography{uncer_reference}
 
 \end{document}
