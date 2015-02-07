@@ -132,6 +132,34 @@ def data_filter(
     return df_new[final_condition]
 
 
+def chcek_exist(df, Point):
+    """
+        Check if a map contains the operating point in Point.
+        Return true if it does.
+
+        Parameters:
+        ============
+        df: pandas dataframe
+            performance data obtained from the function parse_one_sh_data
+
+        Point: OperatingPoint()
+            an operating point with condensing temperature and evaporating
+            temperature
+
+        Return:
+        =============
+        exist: boolean
+            boolean if df contains a point with Point
+    """
+
+    exist = (df.OperatingPoint == Point)
+    exist = exist.sum()
+    if exist == 0:
+        return False
+    else:
+        return True
+
+
 if __name__ == '__main__':
     """
         for Testing
@@ -155,3 +183,9 @@ if __name__ == '__main__':
         AddPoint=[OperatingPoint(80, 0)]
     )
     print(df_new)
+    
+    print("This should be False:")
+    print(chcek_exist(df_new, OperatingPoint(90, -5)))
+
+    print("This should be True:")
+    print(chcek_exist(df_new, OperatingPoint(80, 0)))
