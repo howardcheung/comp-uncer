@@ -1,4 +1,4 @@
-\section{Sources of uncertainty}
+\section{Sources of uncertainty} \label{sec:sources}
 
 Uncertainty of the compressor map output is the range where the true value of the map output may be relative to the map output. It consists of multiple components and can be grouped as follows:
 
@@ -9,7 +9,7 @@ Uncertainty of the compressor map output is the range where the true value of th
 \item Uncertainty due to outputs
 \end{itemize}
 
-\subsection{Uncertainty due to inputs}
+\subsection{Uncertainty due to inputs} \label{subsec:uncer_inputs}
 Uncertainty due to inputs is the uncertainty propagated to the map output due to the uncertainty in the inputs to the maps. The inputs to the map (evaporating and condenser temperature) are usually obtained by converting pressure measurement to saturation temperature with refrigerant equations of state, and the estimated saturation temperature contains uncertainty from both the equation of state and the pressure measurement. The equation of state of R22 estimates saturation pressure at an uncertainty of 0.2\% \cite{Kamei:1995}. When the equation of state estimates an saturation temperature at a given pressure, this uncertainty is transformed into a component of the uncertainty of the saturation temperature as shown in Eqns. (\ref{eq:uncer_p_eos}) and (\ref{eq:uncer_t_eos}).
 
 \begin{equation}
@@ -49,7 +49,7 @@ The uncertainty of the map output propagated from the inputs of condensing tempe
 
 where $\Delta {\hat{\dot{W}}_{input}}$ is the uncertainty due to inputs at the map output
 
-\subsection{Uncertainty due to training data}
+\subsection{Uncertainty due to training data} \label{subsec:uncer_train}
 Uncertainty due to training data is the uncertainty propagated to the map output from the training data through the map coefficients. This can be understood by considering the estimation of the map coefficients as a function of the training data as Eqn. (\ref{eq:beta_train}).
 
 \begin{equation}
@@ -68,4 +68,35 @@ The uncertainty propagated to the map output through function $g$ and $\hat{ \ve
 \label{eq:uncer_w_train}
 \end{equation}
 
-where $\Delta {\hat{\dot{W}}_{train}}$ is the uncertainty due to training data at the map output
+where $\Delta {\hat{\dot{W}}_{train}}$ is the uncertainty due to training data at the map output.
+
+\subsection{Uncertainty due to model random error} \label{subsec:uncer_model}
+
+In linear regression, the random error $\varepsilon$ in Eqn. (EQUATION NUMBER TO BE ADDED) is assumed to be normally distributed around zero with some finite variance. This variance becomes part of the uncertainty of the uncertainty of the map output and can be presented in the form of confidence intervals. Statistic textbooks \cite{Montgomery:2005,Graybill:1994} illusrated that the confidence interval of the variance can be calculated as Eqn. (\ref{eq:uncer_w_model}).
+
+\begin{equation}
+\Delta {\hat{\dot{W}}_{model}} = {t_{n - m,1 - \alpha /2}}\sigma \sqrt {1 + {{\vec x}^T}{{({\mathbf{X}}_{train}^T{{\mathbf{X}}_{train}})}^{ - 1}}\vec x}
+\label{eq:uncer_w_model}
+\end{equation}
+
+where $\Delta {\hat{\dot{W}}_{train}}$ is the uncertainty due to model random error at the map output.
+
+One significant term in Eqn. (\ref{eq:uncer_w_model}) is ${\vec x^T}{({\mathbf{X}}_{train}^T{{\mathbf{X}}_{train}})^{ - 1}}\vec x$ which is the leverage of a regression model \cite{Atkinson:1987}. It estimates how deviated the current input vector to the map is relative to the training data of the regression model, and its magnitude grows with the deviation. This helps to understand if the estimation is related to the training data and if the model is applicable at the current situation described by the input vector.
+
+\subsection{Uncertainty due to output} \label{subsec:uncer_output}
+
+Uncertainty of the map output should represent the probable range where the true value lies relative to the map output. However, since the map is built from data obtained from measured power consumption but not the true values of the power consumption, the uncertainty components of the map output propagated from other sources only estimate the uncertainty of the estimation with the measured power consumption. Another component of uncertainty must be introduced so that the map output uncertainty is the uncertainty to the true map output. This uncertainty component can be approximated with the uncertainty of the measured power consumption with its true values as Eqn. (\ref{eq:uncer_w_output}).
+
+\begin{equation}
+\Delta {\hat{\dot{W}}_{output}} = \frac{1}{n}\Sigma _{i = 1}^n\frac{{\Delta {{\dot{W}}_{train,i}}}}{{{{\dot{W}}_{train,i}}}}
+\label{eq:uncer_w_output}
+\end{equation}
+
+\subsection{Overall uncertainty} \label{subsec:overall_uncer}
+
+The overall uncertainty of the map output is given by the square of the sum of all uncertainty components as Eqn. (\ref{eq:overall_uncer}).
+
+\begin{equation}
+\Delta \hat{\dot{W}}= \sqrt {{{(\Delta {{\hat{\dot{W}}}_{input}})}^2} + {{(\Delta {{\hat{\dot{W}}}_{train}})}^2} + {{(\Delta {{\hat{\dot{W}}}_{model}})}^2} + {{(\Delta {{\hat{\dot{W}}}_{output}})}^2}}
+\label{eq:overall_uncer}
+\end{equation}
