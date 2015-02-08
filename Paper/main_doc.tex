@@ -1,6 +1,6 @@
 
 %for compiling, enter
-%pdflatex main_doc.tex
+%pdflatex main_doc.tex & bibtex main_doc.aux & pdflatex main_doc.tex & pdflatex main_doc.tex
 
 \documentclass[a4paper]{jpconf}
 \bibliographystyle{iopart-num}
@@ -30,7 +30,7 @@
 \ead{cbach@okstate.edu}
 
 \begin{abstract}
-Empirical compressor maps are a simple and reliable approach for heating and cooling system designers to estimate compressor refrigerant mass flow rate and power consumption quickly. These maps were used for a long time since most compressor manufacturers build the maps with extensive test matrices, leading to good accuracy. However, the situation changes when engineers extrapolate the maps to investigate the compressor��s performance under extreme operating conditions such as for cold climate heat pump applications or under conditions with system faults.  Engineers are not confident on the exact uncertainty of the extrapolation, and often claim that the inaccuracy of their studies is a result of high extrapolation uncertainty. This paper presents a method to estimate the extrapolation uncertainty due to the structure of the test matrix that trains the manufacturer maps and helps the investigators to understand if the extrapolation is the main cause of their inaccuracy. To verify that the method can estimate the uncertainty due to extrapolation, the study builds 10-coefficient compressor maps trained by different test matrices of the same size and different operating points. The maps are used to estimate the compressor performance under different operating points and their estimation uncertainties are compared. The results show that the component of the uncertainty that depends on the structure of the test matrix is small at operating conditions within the test matrix but the uncertainty grows significantly as the estimation becomes further away from the operating conditions within the test matrices.
+Empirical compressor maps are a simple and reliable approach for heating and cooling system designers to estimate compressor refrigerant mass flow rate and power consumption quickly. These maps were used for a long time since most compressor manufacturers build the maps with extensive test matrices, leading to good accuracy. However, the situation changes when engineers extrapolate the maps to investigate the compressor??s performance under extreme operating conditions such as for cold climate heat pump applications or under conditions with system faults.  Engineers are not confident on the exact uncertainty of the extrapolation, and often claim that the inaccuracy of their studies is a result of high extrapolation uncertainty. This paper presents a method to estimate the extrapolation uncertainty due to the structure of the test matrix that trains the manufacturer maps and helps the investigators to understand if the extrapolation is the main cause of their inaccuracy. To verify that the method can estimate the uncertainty due to extrapolation, the study builds 10-coefficient compressor maps trained by different test matrices of the same size and different operating points. The maps are used to estimate the compressor performance under different operating points and their estimation uncertainties are compared. The results show that the component of the uncertainty that depends on the structure of the test matrix is small at operating conditions within the test matrix but the uncertainty grows significantly as the estimation becomes further away from the operating conditions within the test matrices.
 \end{abstract}
 
 \input{Introduction}
@@ -40,11 +40,17 @@ Empirical compressor maps are a simple and reliable approach for heating and coo
 \input{sources_of_uncertainty}
 \input{Results_Discussion_CB}
 
+\input{comp_map_uncer}
+
+\input{num_train}
+
+\input{conclusion}
+
 \section*{References}
-%\begin{thebibliography}{9}
-%\bibitem{Kamei:1995} Taylor B N and Kuyatt C. E. 1994 {\it NIST Technical Note 1297}
-%\end{thebibliography}
+
 \bibliography{uncer_reference}
+
+\input{appendix}
 
 \end{document}
 
