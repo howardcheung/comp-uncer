@@ -1,0 +1,76 @@
+\section{Linear regression}
+\label{sec:linear_regression}
+Finding the coefficients of the 10 coefficient maps can be treated as a liniear regression problem, whith the evaporation and condensing temperature and their linear, squared and cubed combinations being the independent variables ${\vec x}$ and the power consumption of the compressor being the estimated dependend variable $y$. To better understand the uncertainty sources of the model, a brief review of linear regression along with how this applies to the polynomial compressor map is shown subsequently.
+
+\subsection{Review}
+\label{sec:linreg_review}
+Linear regression is used to estimate the parameters of a linear model.  Measurement data always includes error, therefore only an estimate of the true parameters can be obtained. If we had the true model parameters ${\vec \beta _{true}} $, then we could use the independent inputs to our model (${\vec x^T}$) to calculate the true output $y_{true}$ up to an error $\varepsilon$ caused by measurement error,
+
+\begin{equation}
+{y_{true}} = {\vec x^T}{\vec \beta _{true}} + \varepsilon .
+\label{eq:true_lin_model}
+\end{equation}
+
+Unfortunately it is not possible to obtain the true model, since all measurement data that is used for training the model has measurement error. Therefore, we need to estimate the model parameters to be able to calculate an estimate of the output. To emphasize the difference between the two models, a hat ( $\hat{}$ ) is used for both, estimated parameters $\hat {\vec \beta}$ and estimated output, $\hat y$,
+
+\begin{equation}
+\hat y = {\vec x^T}\hat {\vec \beta}.
+\label{eq:estimted_lin_model}
+\end{equation}
+
+The parameters for the model can be estimated using measuremnt data, for non-weighted reduction of the squares of the errrors it can be shown that the  parmeter vector $\hat \vec \beta$ can be calculated as
+
+\begin{equation}
+\hat {\vec \beta}  = {({\mathbf{X}}_{train}^T{{\mathbf{X}}_{train}})^{ - 1}}{\mathbf{X}}_{train}^T{\vec y_{train}},
+\label{eq:estimte_parameters}
+\end{equation}
+
+where the training data input matrix ${{\mathbf{X}}_{train}}$, composed of input data vectors ${\vec x}_{train,i}$ for each data point $i$ is constructed as
+
+\begin{equation}
+ {{\mathbf{X}}_{train}} = {\left[ {\begin{array}{*{20}{c}} {{{\vec x}_{train,1}}}& \cdots &{{{\vec x}_{train,i}}}& \cdots &{{{\vec x}_{train,n}}}
+\end{array}} \right]^T},
+\label{eq:input_tr_matrix}
+\end{equation}
+
+where $n$ is the total number of data points. The output training data vector is composed of output values $y_{train,i}$ for each data point as
+
+\begin{equation}
+{\vec y_{train}} = {\left[ {\begin{array}{*{20}{c}}
+  {{y_{train,1}}}& \cdots &{{y_{train,i}}}& \cdots &{{y_{train,n}}} 
+\end{array}} \right]^T}.
+\label{eq:output_tr_vector}
+\end{equation}
+
+The accuracy $\sigma$ of the model for the training data points is 
+
+\begin{equation}
+\sigma  = \sqrt {\frac {{\Sigma _i}{{({y_{train,i}} - {{\vec x}^T}\hat {\vec \beta} )}^2}} {n - 1}}.
+\label{eq:acc_est_model}
+\end{equation}
+
+\subsection{Polynomial compressor map as linear regression problem}
+\label{sec:linreg_compmap}
+ANSI/AHRI Standard 540 \cite{AHRI:540} estimates the compressor power consumption $\hat {\dot W}$ as
+
+\begin{equation}
+\begin{gathered}
+  \hat {\dot W} = {\beta _1} + {\beta _2}{T_{evap}} + {\beta _3}{T_{cond}} + {\beta _4}T_{evap}^2 + {\beta _5}{T_{evap}}{T_{cond}} + {\beta _6}T_{cond}^2 + {\beta _7}T_{evap}^3 + \\
+  {\beta _8}T_{evap}^2{T_{cond}} + {\beta _9}{T_{evap}}T_{cond}^2   + {\beta _{10}}T_{cond}^3 ,
+\end{gathered} 
+\label{eq:pwr_map_definition}
+\end{equation}
+
+where $\beta_i$ are the (estimated) model coefficients and $T_{evap},T_{cond}$ are the evaporation and condensing dew point temperatures. Referring to eqn. \ref{eq:estimted_lin_model}, $\hat {\dot W}$ takes the place of $\hat y$, the vector composed of $\beta_i$ is $\hat {\vec \beta}$, and the vector of independent variables, $\vec x$ is the vector of the independent variables (here: dew point temperatures),
+
+\begin{equation}
+\begin{split}
+&\vec x = \\
+&{\left[ {\begin{array}{*{20}{c}}
+  1&{{T_{evap}}}&{{T_{cond}}}&{T_{evap}^2}&{{T_{evap}}{T_{cond}}}&{T_{cond}^2}&{T_{evap}^3}&{T_{evap}^2{T_{cond}}}&{\begin{array}{*{20}{c}}
+  {{T_{evap}}{T_{cond}}}&{T_{cond}^3} 
+\end{array}} 
+\end{array}} \right]^T}
+\end{split}
+\label{eq:lin_reg_temp_vec}
+\end{equation}
