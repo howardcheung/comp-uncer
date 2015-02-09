@@ -11,9 +11,9 @@
 %% \usepackage[square,sort&compress]{natbib}
 
 \newcommand{\REVTeX}{REV\TeX}
-\newcommand{\blCom}[1]{\begingroup\sffamily\color{blue} #1 \endgroup}  %blue comments on
-%\newcommand{\blCom}[1]{}  %blue comments off
-
+%\newcommand{\blCom}[1]{}  %uncomment for blue comments off
+\newcommand{\blCom}[1]{\begingroup\sffamily\color{blue} #1 \endgroup}  %uncomment for blue comments on
+\newcommand{\dgC}{$^\circ$C} 
 
 \sloppy 
 
@@ -34,27 +34,46 @@
 \ead{cbach@okstate.edu}
 
 \begin{abstract}
-Empirical compressor maps are a simple and reliable approach for heating and cooling system designers to estimate compressor refrigerant mass flow rate and power consumption quickly. These maps were used for a long time since most compressor manufacturers build the maps with extensive test matrices, leading to good accuracy. However, the situation changes when engineers extrapolate the maps to investigate the compressor??s performance under extreme operating conditions such as for cold climate heat pump applications or under conditions with system faults.  Engineers are not confident on the exact uncertainty of the extrapolation, and often claim that the inaccuracy of their studies is a result of high extrapolation uncertainty. This paper presents a method to estimate the extrapolation uncertainty due to the structure of the test matrix that trains the manufacturer maps and helps the investigators to understand if the extrapolation is the main cause of their inaccuracy. To verify that the method can estimate the uncertainty due to extrapolation, the study builds 10-coefficient compressor maps trained by different test matrices of the same size and different operating points. The maps are used to estimate the compressor performance under different operating points and their estimation uncertainties are compared. The results show that the component of the uncertainty that depends on the structure of the test matrix is small at operating conditions within the test matrix but the uncertainty grows significantly as the estimation becomes further away from the operating conditions within the test matrices.\blCom{Some comment :)}
+Empirical compressor maps are a simple and reliable approach for heating and cooling system designers to estimate compressor refrigerant mass flow rate and power consumption quickly. These maps were used for a long time since most compressor manufacturers build the maps with extensive test matrices, leading to good accuracy. However, the situation changes when engineers extrapolate the maps to investigate the compressor's performance under extreme operating conditions such as for cold climate heat pump applications or under conditions with system faults.  Engineers are not confident on the exact uncertainty of the extrapolation, and often claim that the inaccuracy of their studies is a result of high extrapolation uncertainty. This paper presents a method to estimate the extrapolation uncertainty due to the structure of the test matrix that trains the manufacturer maps and helps the investigators to understand if the extrapolation is the main cause of their inaccuracy. To verify that the method can estimate the uncertainty due to extrapolation, the study builds 10-coefficient compressor maps trained by different test matrices of the same size and different operating points. The maps are used to estimate the compressor performance under different operating points and their estimation uncertainties are compared. The results show that the component of the uncertainty that depends on the structure of the test matrix is small at operating conditions within the test matrix but the uncertainty grows significantly as the estimation becomes further away from the operating conditions within the test matrices.\blCom{Some comment.  See main\_doc.tex \textbackslash blCom for how to get rid of it :)}
 \end{abstract}
 
+\blCom{Introduction} %using comment to mark which subfile things come from
 \input{Introduction}
+
+\blCom{Linear\_regression}
 \input{Linear_regression}
+
+\blCom{unc\_steady}
 \input{unc_steady}
+
+\blCom{Approx\_uncertainty}
 \input{Approx_uncertainty}
+
+\blCom{sources\_of\_uncertainty}
 \input{sources_of_uncertainty}
+
+\blCom{Results\_Discussion\_CB}
 \input{Results_Discussion_CB}
 
+
+\blCom{comp\_map\_uncen}
 \input{comp_map_uncer}
 
+\blCom{num\_train}
 \input{num_train}
 
+
+\blCom{conclusion}
 \input{conclusion}
+
+\blCom{Future work - NEED TO FINISH!}
+\input{future_work}
 
 \section*{References}
 
 \bibliography{uncer_reference}
 
-\input{appendix}
+%\input{appendix}
 
 \end{document}
 

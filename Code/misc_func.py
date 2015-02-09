@@ -7,7 +7,7 @@
 
 import numpy as np
 import pylab as plt
-
+import csv
 
 class OperatingPoint:
     """
@@ -238,11 +238,10 @@ def K2R(T_K):
     """
     return T_K*9./5.
 
-
 def parity_plot(
         x_data, uncer_x_data, x_label,
         y_data, uncer_y_data, y_label,
-        filepath
+        filepath, showit = False
         ):
     """
         This function prints a parity plot with deviation
@@ -291,7 +290,6 @@ def parity_plot(
     )
     plt.rc('xtick', labelsize='x-large')
     plt.rc('ytick', labelsize='x-large')
-    graph_filename = filepath
     plt.gcf().subplots_adjust(bottom=0.15)
     plt.gcf().subplots_adjust(left=0.15)
     datamax = max([
@@ -319,5 +317,89 @@ def parity_plot(
         fontdict=None, size='x-large', color='k',
         horizontalalignment='right')
     plt.axis([datamin, datamax, datamin, datamax])
+    graph_filename = filepath
     plt.savefig(graph_filename, dpi=300)
-    plt.close(fig)
+    if not showit:
+        plt.close(fig)
+    else:
+        plt.show()
+
+def xy_plot(
+        x_data, uncer_x_data, x_label,
+        y_data, uncer_y_data, y_label,
+        filepath, showit = False
+        ):
+    """
+        This function prints a xy plot with and save it
+
+        Parameters:
+        ===========
+        x_data: list or numpy array
+            data to be plotted on x-axis
+
+        uncer_x_data: list or numpy array
+            error bar on x-axis
+
+        x_label: string
+            label text on x-axis
+
+        y_data: list or numpy array
+            data to be plotted on y-axis
+
+        uncer_y_data: list or numpy array
+            error bar on y-axis
+
+        y_label: string
+            label text on y-axis
+
+        path: string
+            path and filename where the figure is saved
+
+    """
+
+    fig = plt.figure(1)
+    plt.scatter(
+        x_data, y_data, s=30, c='b', marker='o'
+    )
+    plt.legend(loc=2)
+    plt.errorbar(
+        x_data, y_data, xerr=uncer_x_data,
+        yerr=uncer_y_data, fmt='bo'
+    )
+    plt.xlabel(
+        x_label, fontsize='x-large'
+    )
+    plt.ylabel(
+        y_label,
+        fontsize='x-large', multialignment='center'
+    )
+    plt.rc('xtick', labelsize='x-large')
+    plt.rc('ytick', labelsize='x-large')
+    plt.gcf().subplots_adjust(bottom=0.15)
+    plt.gcf().subplots_adjust(left=0.15)
+    plt.axis([min(min(x_data),-25), max(max(x_data),60),
+              min(min(y_data),75), max(max(y_data),155)])
+    graph_filename = filepath
+    plt.savefig(graph_filename, dpi=300)
+    #save the data
+    ofile = open(filepath[:-3]+"csv", 'wb')
+    writersummary = csv.writer(ofile)
+    writersummary.writerow(list(x_data))
+    writersummary.writerow(list(y_data))
+    ofile.close()
+    if not showit:
+        plt.close(fig)
+    else:
+        plt.show()
+
+def plot_map(map_input,filepath,showit=True):
+    #plots the data from a map as defined in main.py
+    x_data = map_input.MeaEvapTempInF
+    uncer_x_data = map_input.UncerMeaEvapTempInF
+    x_label = "Evaporation Temperature [F]"
+    y_data = map_input.MeaCondTempInF
+    uncer_y_data = map_input.UncerMeaCondTempInF
+    y_label = "Condensing Temperature [F]"
+    xy_plot(x_data, uncer_x_data, x_label,
+                y_data, uncer_y_data, y_label,
+                filepath,showit=showit)

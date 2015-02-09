@@ -19,7 +19,7 @@ Uncertainty due to inputs is the uncertainty propagated to the map output due to
 \end{equation}
 
 \begin{equation}
-\Delta {T_{sat,EOS}} = |\frac{{\partial {T_{sat}}({P})}}{{\partial {P}}}|\Delta {P_{sat,EOS}}
+\Delta {T_{sat,EOS}} = \left|{\frac{{\partial {T_{sat}}({P})}}{{\partial {P}}}}\right|\Delta {P_{sat,EOS}}
 \label{eq:uncer_t_eos}
 \end{equation}
 
@@ -28,7 +28,7 @@ where $\Delta P_{sat,EOS}$ is the uncertainty of saturation pressure as a result
 The component of the uncertainty due to pressure measurement in saturation temperature values is calculated by Eqn. (\ref{eq:uncer_t_mea}).
 
 \begin{equation}
-\Delta {T_{sat,mea}} = |\frac{{\partial {T_{sat}}({P})}}{{\partial {P}}}|\Delta {P_{sat,mea}}
+\Delta {T_{sat,mea}} = \left|\frac{{\partial {T_{sat}}({P})}}{{\partial {P}}}\right|\Delta {P_{sat,mea}}
 \label{eq:uncer_t_mea}
 \end{equation}
 
@@ -44,7 +44,7 @@ The overall uncertainty of the saturation temperature is given by Eqn. (\ref{eq:
 The uncertainty of the map output propagated from the inputs of condensing temperature and evaporating temperature can be given by Eqn. (\ref{eq:uncer_w_input}).
 
 \begin{equation}
-\Delta {\hat{\dot{W}}_{input}} = \sqrt {{(\frac{{\partial \hat{\dot{W}}}}{{\partial {T_{evap}}}}\Delta {T_{evap}})^2} + {(\frac{{\partial \hat{\dot{W}}}}{{\partial {T_{cond}}}}\Delta {T_{cond}})^2}}
+\Delta {\hat{\dot{W}}_{input}} = \sqrt {{\left(\frac{{\partial \hat{\dot{W}}}}{{\partial {T_{evap}}}}\Delta {T_{evap}}\right)^2} + {\left(\frac{{\partial \hat{\dot{W}}}}{{\partial {T_{cond}}}}\Delta {T_{cond}}\right)^2}}
 \label{eq:uncer_w_input}
 \end{equation}
 
@@ -62,9 +62,9 @@ The uncertainty propagated to the map output through function $g$ and $\hat{ \ve
 
 \begin{equation}
 \Delta {\hat{\dot{W}}_{train}} = \sqrt{\begin{gathered}
-  \Sigma_{j=1}^n(\Sigma _{i = 1}^m(\frac{{\partial \hat \dot W}}{{\partial {\beta _i}}}\frac{{\partial {\beta _i}}}{{\partial {T_{evap,train,j}}}})\Delta {T_{evap,train,j}})^2  \hfill \\
-  +\Sigma_{j=1}^n(\Sigma _{i = 1}^m(\frac{{\partial \hat \dot W}}{{\partial {\beta _i}}}\frac{{\partial {\beta _i}}}{{\partial {T_{cond,train,j}}}})\Delta {T_{cond,train,j}})^2 \hfill \\
-   +\Sigma_{j=1}^n(\Sigma _{i = 1}^m(\frac{{\partial \hat \dot W}}{{\partial {\beta _i}}}\frac{{\partial {\beta _i}}}{{\partial {\dot{W}_{,train,j}}}})\Delta {\dot{W}_{train,j}})^2 \hfill \\ 
+  \Sigma_{j=1}^n\left(\Sigma _{i = 1}^m\left(\frac{{\partial \hat \dot W}}{{\partial {\beta _i}}}\frac{{\partial {\beta _i}}}{{\partial {T_{evap,train,j}}}}\right)\Delta {T_{evap,train,j}}\right)^2  \hfill \\
+  +\Sigma_{j=1}^n\left(\Sigma _{i = 1}^m\left(\frac{{\partial \hat \dot W}}{{\partial {\beta _i}}}\frac{{\partial {\beta _i}}}{{\partial {T_{cond,train,j}}}}\right)\Delta {T_{cond,train,j}}\right)^2 \hfill \\
+   +\Sigma_{j=1}^n\left(\Sigma _{i = 1}^m\left(\frac{{\partial \hat \dot W}}{{\partial {\beta _i}}}\frac{{\partial {\beta _i}}}{{\partial {\dot{W}_{,train,j}}}}\right)\Delta {\dot{W}_{train,j}}\right)^2 \hfill \\ 
 \end{gathered}}
 \label{eq:uncer_w_train}
 \end{equation}
@@ -73,7 +73,7 @@ where $\Delta {\hat{\dot{W}}_{train}}$ is the uncertainty due to training data a
 
 \subsection{Uncertainty due to model random error} \label{subsec:uncer_model}
 
-In linear regression, the random error $\varepsilon$ in Eqn. (EQUATION NUMBER TO BE ADDED) is assumed to be normally distributed around zero with some finite variance. This variance becomes part of the uncertainty of the uncertainty of the map output and can be presented in the form of confidence intervals. Statistic textbooks \cite{Montgomery:2005,Graybill:1994} illusrated that the confidence interval of the variance can be calculated as Eqn. (\ref{eq:uncer_w_model}).
+In linear regression, the random error $\varepsilon$ in Eqn. (EQUATION NUMBER TO BE ADDED) is assumed to be normally distributed around zero with some finite variance. This variance becomes part of the uncertainty of the uncertainty of the map output and can be presented in the form of confidence intervals. Statistic textbooks \cite{Montgomery:2005,Graybill:1994} illustrated that the confidence interval of the variance can be calculated as Eqn. (\ref{eq:uncer_w_model}).
 
 \begin{equation}
 \Delta {\hat{\dot{W}}_{model}} = {t_{n - m,1 - \alpha /2}}\sigma \sqrt {1 + {{\vec x}^T}{{({\mathbf{X}}_{train}^T{{\mathbf{X}}_{train}})}^{ - 1}}\vec x}
@@ -82,7 +82,7 @@ In linear regression, the random error $\varepsilon$ in Eqn. (EQUATION NUMBER TO
 
 where $\Delta {\hat{\dot{W}}_{train}}$ is the uncertainty due to model random error at the map output.
 
-One significant term in Eqn. (\ref{eq:uncer_w_model}) is ${\vec x^T}{({\mathbf{X}}_{train}^T{{\mathbf{X}}_{train}})^{ - 1}}\vec x$ which is the leverage of a regression model \cite{Atkinson:1987}. It estimates how deviated the current input vector to the map is relative to the training data of the regression model, and its magnitude grows with the deviation. This helps to understand if the estimation is related to the training data and if the model is applicable at the current situation described by the input vector.
+One significant term in Eqn. (\ref{eq:uncer_w_model}) is ${\vec x^T}{({\mathbf{X}}_{train}^T{{\mathbf{X}}_{train}})^{ - 1}}\vec x$ which is the leverage of a regression model \cite{Atkinson:1987}. It estimates how deviated the current input vector to the map is relative to the training data of the regression model, and its magnitude grows with the deviation. This helps to understand if the estimation is related to the training data and if (or ``how much'')the model is applicable at the current situation described by the input vector.
 
 \subsection{Uncertainty due to output} \label{subsec:uncer_output}
 

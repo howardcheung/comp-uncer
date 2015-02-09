@@ -22,8 +22,9 @@ import data_manipulation
 import exp_uncer
 from info_class import MAP_INFO
 import misc_func
-from misc_func import OperatingPoint
+from misc_func import OperatingPoint,plot_map
 import read_perform_data
+from point_distance import point_distance
 
 # define experimental method and apparatus
 test = data_manipulation.EXP_METHOD(0.1, 600)
@@ -262,6 +263,10 @@ df_maps[maps[7]] = read_perform_data.data_filter(
     ],
 )
 
+for map_ in maps:
+    plot_map(df_maps[map_],"./map_training_data/"+map_+"_training_data.png",showit=False)
+#raise()
+
 # regression for each map
 map_infos = {}
 for map in df_maps:
@@ -329,7 +334,7 @@ for map in map_infos:
         "EvapTempInF", "EstPower",
         "UncerOverall", "UncerInput", "UncerOutput",
         "UncerTrain", "UncerDev", "UncerCov", "PowerDiff",
-        "Skewness"
+        "Skewness","MinNormDistance","MinFDistance"
     ])
     ss_tot_all = 0.0
     ss_res_all = 0.0
@@ -372,7 +377,16 @@ for map in map_infos:
                 ]
             ]
             skew_trn = scipy.stats.skew(rel_comp_trn)
-
+            
+            kwargs = {
+                'CondTempInF': df_maps[map].CondTempInF,
+                'EvapTempInF': df_maps[map].EvapTempInF,
+                'test_pt_CTF': df_maps[case].MeaCondTempInF[ind],
+                'test_pt_ETF': df_maps[case].MeaEvapTempInF[ind]
+                }
+            pt = point_distance(**kwargs)
+            min_norm_distance = pt.get_min_norm_DistanceF()
+            min_F_distance = pt.get_min_DistanceF()
             # write results to file
             result.append([
                 case, "%.5e" % df_maps[case].MeaPowerInW[ind],
@@ -385,6 +399,8 @@ for map in map_infos:
                 "%.5e" % uncer_cov,
                 "%.5e" % (power-df_maps[case].MeaPowerInW[ind]),
                 "%.5e" % skew_trn,
+                "%.5e" % min_norm_distance,
+                "%.5e" % min_F_distance
             ])
 
             if case is "All":
@@ -443,7 +459,7 @@ for map in map_infos:
     result.append([
         "Map", "Case", "CondTempInF", "EvapTempInF", "EstPower",
         "UncerOverall", "UncerInput", "UncerOutput",
-        "UncerTrain", "UncerDev", "UncerCov"
+        "UncerTrain", "UncerDev", "UncerCov", "MinNormDistance", "MinFDistance"
     ])
     for cases in case_points:
         for point in case_points[cases]:
@@ -459,13 +475,23 @@ for map in map_infos:
                     para=map_infos[map].map_para,
                     full_output=True
                 )
+            kwargs = {
+                'CondTempInF': df_maps[map].CondTempInF,
+                'EvapTempInF': df_maps[map].EvapTempInF,
+                'test_pt_CTF': point.get_CondTempInF(),
+                'test_pt_ETF': point.get_EvapTempInF()
+                }
+            pt = point_distance(**kwargs)
+            norm_distance = pt.get_min_norm_DistanceF()
+            F_distance = pt.get_min_DistanceF()
             result.append([
                 map, cases, "%.5e" % (point.get_CondTempInF()),
                 "%.5e" % (point.get_EvapTempInF()),
                 "%.5e" % power, "%.5e" % uncer_power,
                 "%.5e" % uncer_input, "%.5e" % uncer_output,
                 "%.5e" % uncer_train, "%.5e" % uncer_dev,
-                "%.5e" % uncer_cov
+                "%.5e" % uncer_cov, "%.5e" % norm_distance,
+                "%.5e" % uncer_cov, "%.5e" % F_distance,
             ])
     ofile = open('..//Results//'+map+'_result.csv', 'wb')
     writersummary = csv.writer(ofile)

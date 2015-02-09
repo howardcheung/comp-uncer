@@ -15,7 +15,7 @@ class point_distance:
         calculates the distance of a point to that data.
     """
 
-    def __init__(self, CondTempInF=float('inf'), EvapTempInF=float('-inf'),
+    def __init__(self, CondTempInF=float('inf')*np.ones(3), EvapTempInF=float('-inf')*np.ones(3),
                  test_pt_CTF=float('-inf'), test_pt_ETF=float('inf')):
 
         self.condtempinF = CondTempInF
@@ -50,6 +50,7 @@ class point_distance:
         return self.max_distance
 
     def get_min_norm_DistanceF(self):
+        #something funny going on with this function, (looks like too large of a normalized distance) do not use results until clarified!
         #returns the minimum normalized distance
         distance_ctf = (self.test_pt_CTF - self.condtempinF)
         distance_etf = (self.test_pt_ETF - self.evaptempinF)
@@ -58,8 +59,8 @@ class point_distance:
         min_c_distance = np.min(distance_ctf)
         min_e_distance = np.min(distance_etf)
         #normalizing constants
-        c_norm = max_c_distance - min_c_distance
-        e_norm = max_e_distance - min_e_distance
+        c_norm = np.max(self.condtempinF) - np.min(self.condtempinF)
+        e_norm = np.max(self.evaptempinF) - np.min(self.evaptempinF)
         self.min_norm_distance = np.min((distance_ctf**2) / (c_norm**2) +
                                         (distance_etf**2) / (e_norm**2))
         self.min_norm_distance = np.sqrt(self.min_norm_distance)
