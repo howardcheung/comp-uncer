@@ -25,7 +25,7 @@ The parameters for the model can be estimated using measurement data, for non-we
 \label{eq:estimte_parameters}
 \end{equation}
 
-where the training data input matrix ${{\mathbf{X}}_{train}}$, composed of input data vectors ${\vec x}_{train,i}$ for each data point $i$ is constructed as
+where the subscript $train$ is used for training data, the training data input matrix ${{\mathbf{X}}_{train}}$, composed of input data vectors ${\vec x}_{train,i}$ for each data point $i$ is constructed as
 
 \begin{equation}
  {{\mathbf{X}}_{train}} = {\left[ {\begin{array}{*{20}{c}} {{{\vec x}_{train,1}}}& \cdots &{{{\vec x}_{train,i}}}& \cdots &{{{\vec x}_{train,n}}}
@@ -42,7 +42,7 @@ where $n$ is the total number of data points. The output training data vector is
 \label{eq:output_tr_vector}
 \end{equation}
 
-The accuracy $\sigma$ of the model for the training data points is 
+The accuracy of the model, measured by the mean sum of square $\sigma$, is 
 
 \begin{equation}
 \sigma  = \sqrt {\frac {{\Sigma _i}{{({y_{train,i}} - {{\vec x}^T}\hat {\vec \beta} )}^2}} {n - 1}}.
@@ -61,7 +61,7 @@ ANSI/AHRI Standard 540 \cite{AHRI:540} estimates the compressor power consumptio
 \label{eq:pwr_map_definition}
 \end{equation}
 
-where $\beta_i$ are the (estimated) model coefficients and $T_{evap}, and T_{cond}$ are the evaporation and condensing dew point temperatures. Referring to eqn. \ref{eq:estimted_lin_model}, $\hat {\dot W}$ takes the place of $\hat y$, the estimated parameter vector  $\hat {\vec \beta}$ is composed of the $\beta_i$, and the vector of independent variables (here: dew point temperatures), $\vec x$ is constructed as
+where $\beta_i$ are the (estimated) model coefficients and $T_{evap}$, and $T_{cond}$ are the evaporation and condensing dew point temperatures. Referring to eqn. \ref{eq:estimted_lin_model}, $\hat {\dot W}$ takes the place of $\hat y$, the estimated parameter vector  $\hat {\vec \beta}$ is composed of the $\beta_i$, and the vector of independent variables (here: dew point temperatures), $\vec x$ is constructed as
 
 \begin{equation}
 \begin{split}
