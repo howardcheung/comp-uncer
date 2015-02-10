@@ -4,14 +4,14 @@ Finding the coefficients of the 10 coefficient maps can be treated as a linear r
 
 \subsection{Review}
 \label{sec:linreg_review}
-Linear regression is used to estimate the parameters of a linear model.  Measurement data always includes error, therefore only an estimate of the true parameters can be obtained. If we had the true model parameters ${\vec \beta _{true}} $, then we could use the independent inputs to our model (${\vec x^T}$) to calculate the true output $y_{true}$ up to an error $\varepsilon$ caused by measurement error,
+Linear regression is used to estimate the parameters of a linear model.  Measurement data always includes error, therefore only an estimate of the true parameters can be obtained. If we had the true model parameters ${\vec \beta _{true}} $, then we could use the independent inputs to our model (${\vec x^T}$) to calculate the true output $y_{true}$ up to an error $\varepsilon$ caused by measurement error \blCom{The $\varepsilon$ is not caused by measurement error, but the inability of a linear model to describe the inifinte number of output variables $y$ within the operating range},
 
 \begin{equation}
 {y_{true}} = {\vec x^T}{\vec \beta _{true}} + \varepsilon .
 \label{eq:true_lin_model}
 \end{equation}
 
-Unfortunately it is not possible to obtain the true model, since all measurement data that is used for training the model includes measurement error. Therefore, we need to estimate the model parameters to be able to calculate an estimate of the output. To emphasize the difference between the two models, a hat ( $\hat{}$ ) is used for both, estimated model parameters $\hat {\vec \beta}$ and estimated model output, $\hat y$,
+Unfortunately it is not possible to obtain the true model, since all measurement data that is used for training the model includes measurement error \blCom{No. The true model is impossible to obtain because it is impossible to obtain the infinite number of data points within the operating range.}. Therefore, we need to estimate the model parameters to be able to calculate an estimate of the output. To emphasize the difference between the two models, a hat ( $\hat{}$ ) is used for both, estimated model parameters $\hat {\vec \beta}$ and estimated model output, $\hat y$,
 
 \begin{equation}
 \hat y = {\vec x^T}\hat {\vec \beta}.
