@@ -1,7 +1,4 @@
 \section{Future work}
 \label{sec:future_work}
-1) use experimental data -> find distribution since normal distribution assumption (for data generation) might not be valid
-
-2) Manufacuring variability wrt to different compressors of same model
-a) manufacturing variability -> some inital test with multiple compressors from same manufacturing line for a few conditions
-b) if a) large variation do design of experiments to future investigate
+One of the basic assumptions in this paper is that individual measurement values are normally distributed around their average value. However, this might not be the case for actual measurement data. Therefore, experiments with actual compressor measurements should be conducted to check whether this assumption is appropriate.\\
+This paper evaluated the uncertainty for the map for one single compressor and did not consider manufacturing differences between compressors of the same model. In practice, performance maps are not made for every single compressor.  Some initial tests with multiple compressors of the same model could be used to determine whether manufacturing differences lead to significant deviations. If that is the case, then design of experiments should be used for future investigations in order to minimize the number of compressors and training points for the compressor model performance map.
