@@ -48,7 +48,7 @@ The uncertainty of the map output propagated from the inputs of condensing tempe
 \label{eq:uncer_w_input}
 \end{equation}
 
-where $\Delta {\hat{\dot{W}}_{input}}$ is the uncertainty due to inputs at the map output
+where $\Delta {\hat{\dot{W}}_{input}}$ is the uncertainty due to inputs at the map output, $\Delta {T_{evap}}$ is the uncertainty of evaporating temperature at input and $\Delta T_{cond}$ is the uncertainty of condensing temperature at input
 
 \subsection{Uncertainty due to training data} \label{subsec:uncer_train}
 Uncertainty due to training data is the uncertainty propagated to the map output from the training data through the map coefficients. This can be understood by considering the estimation of the map coefficients as a function of the training data as Eqn. (\ref{eq:beta_train}).
@@ -58,7 +58,7 @@ Uncertainty due to training data is the uncertainty propagated to the map output
 \label{eq:beta_train}
 \end{equation}
 
-The uncertainty propagated to the map output through function $g$ and $\hat{ \vec {\beta}}$ in Eqn. (\ref{eq:beta_train}) is calculated by Eqn. (\ref{eq:uncer_w_train}).
+where n is the number of training data points. The uncertainty propagated to the map output through function $g$ and $\hat{ \vec {\beta}}$ in Eqn. (\ref{eq:beta_train}) is calculated by Eqn. (\ref{eq:uncer_w_train}).
 
 \begin{equation}
 \Delta {\hat{\dot{W}}_{train}} = \sqrt{\begin{gathered}
@@ -69,11 +69,11 @@ The uncertainty propagated to the map output through function $g$ and $\hat{ \ve
 \label{eq:uncer_w_train}
 \end{equation}
 
-where $\Delta {\hat{\dot{W}}_{train}}$ is the uncertainty due to training data at the map output.
+where $\Delta {\hat{\dot{W}}_{train}}$ is the uncertainty due to training data at the map output, $\Delta {T_{evap,train,j}}$ is the uncertainty of the evaporating temperature at the j$^{th}$ data point, $\Delta {T_{cond,train,j}}$ is the uncertainty of the condensing temperature at the j$^{th}$ data point, , $\Delta {\dot{W}_{train,j}}$ is the uncertainty of the power consumption at the j$^{th}$ data point, and m is the number of coefficients in $\hat{\vec{\beta}}$
 
 \subsection{Uncertainty due to model random error} \label{subsec:uncer_model}
 
-In linear regression, the random error $\varepsilon$ in Eqn. (EQUATION NUMBER TO BE ADDED) is assumed to be normally distributed around zero with some finite variance. This variance becomes part of the uncertainty of the uncertainty of the map output and can be presented in the form of confidence intervals. Statistic textbooks \cite{Montgomery:2005,Graybill:1994} illustrated that the confidence interval of the variance can be calculated as Eqn. (\ref{eq:uncer_w_model}).
+In linear regression, the random error $\varepsilon$ in Eqn. (\ref{eq:true_lin_model}) is assumed to be normally distributed around zero with some finite variance. This variance becomes part of the uncertainty of the uncertainty of the map output and can be presented in the form of confidence intervals. Statistic textbooks \cite{Montgomery:2005,Graybill:1994} illustrated that the confidence interval of the variance can be calculated as Eqn. (\ref{eq:uncer_w_model}).
 
 \begin{equation}
 \Delta {\hat{\dot{W}}_{model}} = {t_{n - m,1 - \alpha /2}}\sigma \sqrt {1 + {{\vec x}^T}{{({\mathbf{X}}_{train}^T{{\mathbf{X}}_{train}})}^{ - 1}}\vec x}
