@@ -62,14 +62,14 @@ where n is the number of training data points. The uncertainty propagated to the
 
 \begin{equation}
 \Delta {\hat{\dot{W}}_{train}} = \sqrt{\begin{gathered}
-  \Sigma_{j=1}^n\left(\Sigma _{i = 1}^m\left(\frac{{\partial \hat \dot W}}{{\partial {\beta _i}}}\frac{{\partial {\beta _i}}}{{\partial {T_{evap,train,j}}}}\right)\Delta {T_{evap,train,j}}\right)^2  \hfill \\
-  +\Sigma_{j=1}^n\left(\Sigma _{i = 1}^m\left(\frac{{\partial \hat \dot W}}{{\partial {\beta _i}}}\frac{{\partial {\beta _i}}}{{\partial {T_{cond,train,j}}}}\right)\Delta {T_{cond,train,j}}\right)^2 \hfill \\
-   +\Sigma_{j=1}^n\left(\Sigma _{i = 1}^m\left(\frac{{\partial \hat \dot W}}{{\partial {\beta _i}}}\frac{{\partial {\beta _i}}}{{\partial {\dot{W}_{,train,j}}}}\right)\Delta {\dot{W}_{train,j}}\right)^2 \hfill \\ 
+  \Sigma_{j=1}^n\left(\Sigma _{i = 1}^m\left(\frac{{\partial \hat{\dot{W}}}}{{\partial {\beta _i}}}\frac{{\partial {\beta _i}}}{{\partial {T_{evap,train,j}}}}\right)\Delta {T_{evap,train,j}}\right)^2  \hfill \\
+  +\Sigma_{j=1}^n\left(\Sigma _{i = 1}^m\left(\frac{{\partial \hat{\dot{W}}}}{{\partial {\beta _i}}}\frac{{\partial {\beta _i}}}{{\partial {T_{cond,train,j}}}}\right)\Delta {T_{cond,train,j}}\right)^2 \hfill \\
+   +\Sigma_{j=1}^n\left(\Sigma _{i = 1}^m\left(\frac{{\partial \hat{\dot{W}}}}{{\partial {\beta _i}}}\frac{{\partial {\beta _i}}}{{\partial {\dot{W}_{,train,j}}}}\right)\Delta {\dot{W}_{train,j}}\right)^2 \hfill \\ 
 \end{gathered}}
 \label{eq:uncer_w_train}
 \end{equation}
 
-where $\Delta {\hat{\dot{W}}_{train}}$ is the uncertainty due to training data at the map output, $\Delta {T_{evap,train,j}}$ is the uncertainty of the evaporating temperature at the j$^{th}$ data point, $\Delta {T_{cond,train,j}}$ is the uncertainty of the condensing temperature at the j$^{th}$ data point, , $\Delta {\dot{W}_{train,j}}$ is the uncertainty of the power consumption at the j$^{th}$ data point, and m is the number of coefficients in $\hat{\vec{\beta}}$
+where $\Delta {\hat{\dot{W}}_{train}}$ is the uncertainty due to training data at the map output, $\Delta {T_{evap,train,j}}$ is the uncertainty of the evaporating temperature at the j$^{th}$ data point, $\Delta {T_{cond,train,j}}$ is the uncertainty of the condensing temperature at the j$^{th}$ data point, $\Delta {\dot{W}_{train,j}}$ is the uncertainty of the power consumption at the j$^{th}$ data point, and m is the number of coefficients in $\hat{\vec{\beta}}$
 
 \subsection{Uncertainty due to model random error} \label{subsec:uncer_model}
 
