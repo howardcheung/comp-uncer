@@ -1,7 +1,7 @@
 \section{Sources of uncertainty} \label{sec:sources}
 \label{sec:uncer_source}
 
-Uncertainty of the compressor map output is the range where the true value of the map output may be relative to the map output. It consists of multiple components and can be grouped as follows:
+Uncertainty of the compressor map output is the range where the true value of the output may be relative to the map output. It consists of multiple components and can be grouped as follows:
 
 \begin{itemize}
 \item Uncertainty due to inputs
@@ -11,10 +11,10 @@ Uncertainty of the compressor map output is the range where the true value of th
 \end{itemize}
 
 \subsection{Uncertainty due to inputs} \label{subsec:uncer_inputs}
-Uncertainty due to inputs is the uncertainty propagated to the map output due to the uncertainty in the inputs to the maps. The inputs to the map (evaporating and condenser temperature) are usually obtained by converting pressure measurement to saturation temperature with refrigerant equations of state, and the estimated saturation temperature contains uncertainty from both the equation of state and the pressure measurement. The equation of state of R22 estimates saturation pressure at an uncertainty of 0.2\% \cite{Kamei:1995}. When the equation of state estimates an saturation temperature at a given pressure, this uncertainty is transformed into a component of the uncertainty of the saturation temperature as shown in
+Uncertainty due to inputs is the uncertainty propagated to the map output due to the uncertainty in the inputs to the maps. The inputs to the map (evaporating and condenser temperature) are usually obtained by converting pressure measurements to saturation temperatures with refrigerant equations of state. Therefore the estimated saturation temperature contains uncertainty from both the equation of state and the pressure measurement. The equation of state of R22 estimates saturation pressure at an uncertainty of 0.2\% \cite{Kamei:1995}. When the equation of state estimates an saturation temperature at a given pressure, this uncertainty is transformed into a component of the uncertainty of the saturation temperature as shown in
 
 \begin{equation}
-\frac{\Delta P_{sat,EOS}}{P_{sat}(T)} = 0.002
+\frac{\Delta P_{sat,EOS}}{P_{sat}(T)} = 0.2\% = 0.002
 \label{eq:uncer_p_eos}
 \end{equation}
 
@@ -69,11 +69,13 @@ where n is the number of training data points. Through function $g$ and $\hat{ \
 \label{eq:uncer_w_train}
 \end{equation}
 
+\blCom{difficult to grasp. not sure how much we can do about that...}
+
 where $\Delta {\hat{\dot{W}}_{train}}$ is the uncertainty due to training data at the map output, $\Delta {T_{evap,train,j}}$ is the uncertainty of the evaporating temperature at the j$^{th}$ data point, $\Delta {T_{cond,train,j}}$ is the uncertainty of the condensing temperature at the j$^{th}$ data point, $\Delta {\dot{W}_{train,j}}$ is the uncertainty of the power consumption at the j$^{th}$ data point, and m is the number of coefficients in $\hat{\vec{\beta}}$.
 
 \subsection{Uncertainty due to model random error} \label{subsec:uncer_model}
 
-In linear regression, the random error $\varepsilon$ in Eqn. (\ref{eq:true_lin_model}) is assumed to be normally distributed around zero with some finite variance. This variance becomes part of the uncertainty of the uncertainty of the map output and can be presented in the form of confidence intervals. Statistic textbooks \cite{Montgomery:2005,Graybill:1994} illustrated that the confidence interval of the variance can be calculated as
+In linear regression, the random error between true model and actual system, $\varepsilon$ in Eqn. (\ref{eq:true_lin_model}) is assumed to be normally distributed around zero with some finite variance. This variance becomes part of the uncertainty of the uncertainty of the map output and can be presented in the form of confidence intervals. Statistic textbooks \cite{Montgomery:2005,Graybill:1994} illustrated that the confidence interval of the variance can be calculated as
 
 \begin{equation}
 \Delta {\hat{\dot{W}}_{model}} = {t_{n - m,1 - \alpha /2}}\sigma \sqrt {1 + {{\vec x}^T}{{({\mathbf{X}}_{train}^T{{\mathbf{X}}_{train}})}^{ - 1}}\vec x}
@@ -86,7 +88,7 @@ One significant term in Eqn. (\ref{eq:uncer_w_model}) is ${\vec x^T}{({\mathbf{X
 
 \subsection{Uncertainty due to output} \label{subsec:uncer_output}
 
-Uncertainty of the map output should represent the probable range where the true value lies relative to the map output. However, since the map is built from data obtained from measured power consumption but not the true values of the power consumption, the uncertainty components of the map output propagated from other sources only estimate the uncertainty of the estimation with the measured power consumption. Another component of uncertainty must be introduced so that the map output uncertainty is the uncertainty to the true map output. This uncertainty component can be approximated with the uncertainty of the measured power consumption with its true values by
+Uncertainty of the map output should represent the probable range where the true value lies relative to the map output. However, since the map is built from data obtained from measured power consumption instead of true values of the power consumption, the uncertainty components of the map output propagated from other sources only estimate the uncertainty of the estimation with the measured power consumption. Another component of uncertainty must be introduced so that the map output uncertainty is the uncertainty to the true map output. This uncertainty component can be approximated with the uncertainty of the measured power consumption with its true values by
 
 \begin{equation}
 \Delta {\hat{\dot{W}}_{output}} = \frac{1}{n}\Sigma _{i = 1}^n\frac{{\Delta {{\dot{W}}_{train,i}}}}{{{{\dot{W}}_{train,i}}}} .
