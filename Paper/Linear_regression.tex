@@ -55,22 +55,22 @@ ANSI/AHRI Standard 540 \cite{AHRI:540} estimates the compressor power consumptio
 
 \begin{equation}
 \begin{gathered}
-  \hat {\dot W} = {\beta _1} + {\beta _2}{T_{evap}} + {\beta _3}{T_{cond}} + {\beta _4}T_{evap}^2 + {\beta _5}{T_{evap}}{T_{cond}} + {\beta _6}T_{cond}^2 + {\beta _7}T_{evap}^3 + \\
-  {\beta _8}T_{evap}^2{T_{cond}} + {\beta _9}{T_{evap}}T_{cond}^2   + {\beta _{10}}T_{cond}^3 ,
+  \hat {\dot W} = {\hat{\beta} _1} + {\hat{\beta} _2}{T_{evap}} + {\hat{\beta} _3}{T_{cond}} + {\hat{\beta} _4}T_{evap}^2 + {\hat{\beta} _5}{T_{evap}}{T_{cond}} + {\hat{\beta} _6}T_{cond}^2 + {\hat{\beta} _7}T_{evap}^3 + \\
+  {\hat{\beta} _8}T_{evap}^2{T_{cond}} + {\hat{\beta} _9}{T_{evap}}T_{cond}^2   + {\hat{\beta} _{10}}T_{cond}^3 ,
 \end{gathered} 
 \label{eq:pwr_map_definition}
 \end{equation}
 
-where $\beta_i$ are the (estimated) model coefficients and $T_{evap}$, and $T_{cond}$ are the evaporation and condensing dew point temperatures. Referring to eqn. \ref{eq:estimted_lin_model}, $\hat {\dot W}$ takes the place of $\hat y$, the estimated parameter vector  $\hat {\vec \beta}$ is composed of the $\beta_i$, and the vector of independent variables (here: dew point temperatures), $\vec x$ is constructed as
+where $\hat{\beta}_i$ are the estimated model coefficients and $T_{evap}$, and $T_{cond}$ are the evaporation and condensing dew point temperatures. Referring to eqn. \ref{eq:estimted_lin_model}, $\hat {\dot W}$ takes the place of $\hat y$, the estimated parameter vector  $\hat {\vec \beta}$ is composed of the $\hat{\beta}_i$, and the vector of independent variables (here: dew point temperatures), $\vec x$ is constructed as
 
 \begin{equation}
 \begin{split}
 &\vec x = \\
 &{\left[ {\begin{array}{*{20}{c}}
   1&{{T_{evap}}}&{{T_{cond}}}&{T_{evap}^2}&{{T_{evap}}{T_{cond}}}&{T_{cond}^2}&{T_{evap}^3}&{T_{evap}^2{T_{cond}}}&{\begin{array}{*{20}{c}}
-  {{T_{evap}}{T_{cond}}}&{T_{cond}^3} .
+  {{T_{evap}}{T_{cond}}}&{T_{cond}^3}
 \end{array}} 
-\end{array}} \right]^T}
+\end{array}} \right]^T}.
 \end{split}
 \label{eq:lin_reg_temp_vec}
 \end{equation}
