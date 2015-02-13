@@ -25,7 +25,7 @@ The parameters for the model can be estimated using measurement data. For non-we
 \label{eq:estimte_parameters}
 \end{equation}
 
-where the subscript $train$ is used for training data, the training data input matrix ${{\mathbf{X}}_{train}}$, composed of input data vectors ${\vec x}_{train,i}$ for each data point $i$ is constructed as
+where the subscript $train$ is used for training data. The training data input matrix ${{\mathbf{X}}_{train}}$, composed of input data vectors ${\vec x}_{train,i}$ for each data point $i$ is constructed as
 
 \begin{equation}
  {{\mathbf{X}}_{train}} = {\left[ {\begin{array}{*{20}{c}} {{{\vec x}_{train,1}}}& \cdots &{{{\vec x}_{train,i}}}& \cdots &{{{\vec x}_{train,n}}}
@@ -42,7 +42,7 @@ where $n$ is the total number of data points. The output training data vector is
 \label{eq:output_tr_vector}
 \end{equation}
 
-The accuracy of the model, measured by the mean sum of square $\sigma$, is 
+The accuracy of the model, measured by the mean sum of square of errors $\sigma$, is 
 
 \begin{equation}
 \sigma  = \sqrt {\frac {{\Sigma _i}{{({y_{train,i}} - {{\vec x}^T}\hat {\vec \beta} )}^2}} {n - 1}}.
