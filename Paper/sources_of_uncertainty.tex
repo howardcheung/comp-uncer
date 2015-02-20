@@ -48,7 +48,7 @@ The uncertainty of the map output propagated from the inputs of condensing tempe
 \label{eq:uncer_w_input}
 \end{equation}
 
-where $\Delta {\hat{\dot{W}}_{input}}$ is the uncertainty due to inputs at the map output, $\Delta {T_{evap}}$ is the uncertainty of evaporating temperature at input and $\Delta T_{cond}$ is the uncertainty of condensing temperature at input
+where $\Delta {\hat{\dot{W}}_{input}}$ is the uncertainty due to inputs at the map output, $\Delta {T_{evap}}$ is the uncertainty of evaporating temperature at input and $\Delta T_{cond}$ is the uncertainty of condensing temperature at input.
 
 \subsection{Uncertainty due to training data} \label{subsec:uncer_train}
 Uncertainty due to training data is the uncertainty propagated to the map output from the training data through the map coefficients. This can be understood by considering the estimation of the map coefficients as a function of the training data as
@@ -82,7 +82,7 @@ In linear regression, the random error between true model and actual system, $\v
 
 where $\Delta {\hat{\dot{W}}_{train}}$ is the uncertainty due to model random error at the map output.
 
-One significant term in Eqn. (\ref{eq:uncer_w_model}) is ${\vec x^T}{({\mathbf{X}}_{train}^T{{\mathbf{X}}_{train}})^{ - 1}}\vec x$ which is the leverage of a regression model \cite{Atkinson:1987}. It estimates how deviated the current input vector to the map is relative to the training data of the regression model, and the magnitude of the leverage grows with the deviation. This helps to understand if the estimation is related to the training data and if (or ``how much'')the model is applicable at the current situation described by the input vector.
+One significant term in Eqn. (\ref{eq:uncer_w_model}) is ${\vec x^T}{({\mathbf{X}}_{train}^T{{\mathbf{X}}_{train}})^{ - 1}}\vec x$ which is the leverage of a regression model \cite{Atkinson:1987}. It estimates how deviated the current input vector to the map is relative to the training data of the regression model, and the magnitude of the leverage grows with the deviation. This helps to understand if the estimation is related to the training data and if (or ``how much'') the model is applicable at the current situation described by the input vector.
 
 \subsection{Uncertainty due to output} \label{subsec:uncer_output}
 
