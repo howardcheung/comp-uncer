@@ -80,7 +80,7 @@ In linear regression, the random error between true model and actual system, $\v
 \label{eq:uncer_w_model}
 \end{equation}
 
-where $\Delta {\hat{\dot{W}}_{train}}$ is the uncertainty due to model random error at the map output.
+where $\Delta {\hat{\dot{W}}_{model}}$ is the uncertainty due to model random error at the map output.
 
 One significant term in Eqn. (\ref{eq:uncer_w_model}) is ${\vec x^T}{({\mathbf{X}}_{train}^T{{\mathbf{X}}_{train}})^{ - 1}}\vec x$ which is the leverage of a regression model \cite{Atkinson:1987}. It estimates how deviated the current input vector to the map is relative to the training data of the regression model, and the magnitude of the leverage grows with the deviation. This helps to understand if the estimation is related to the training data and if (or ``how much'') the model is applicable at the current situation described by the input vector.
 
